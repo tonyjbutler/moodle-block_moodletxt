@@ -1,0 +1,12 @@
+moodletxt icon sources
+----------------------
+
+Most icons are from the FamFamFam Silk Library by Mark James @ http://www.famfamfam.com/lab/icons/silk/
+
+Exceptions to this rule:
+
+status_* icons are from the ConnectTxt website @  http://www.txttools.co.uk/
+
+trash32.png and trash48.png are from the Oxygen icon set and are licenced under GPL
+
+hand.cur is converted from FamFamFam Silk into an icon format for CSS purposes

@@ -1,0 +1,300 @@
+/**
+ * Default stylesheet for the send-message
+ * AJAX UI.
+ *
+ * moodletxt is distributed as GPLv3 software, and is provided free of charge without warranty. 
+ * A full copy of this licence can be found @
+ * http://www.gnu.org/licenses/gpl.html
+ * In addition to this licence, as described in section 7, we add the following terms:
+ *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
+ *   - Derivative works do not have permission to use the trade and service names 
+ *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *   - Derivative works must be have their differences from the original material noted,
+ *     and must not be misrepresentative of the origin of this material, or of the original service
+ * 
+ * Anyone using, extending or modifying moodletxt indemnifies the original authors against any contractual
+ * or legal liability arising from their use of this code.
+ * 
+ * @author Greg J Preece <txttoolssupport@blackboard.com>
+ * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
+ * @version 2012052901
+ * @since 2010070812
+ */
+
+div#slideWrapper{
+    width               :   90%;
+    height              :   560px;
+    position            :   relative;
+    overflow            :   hidden;
+    margin-left         :   auto;
+    margin-right        :   auto;
+    padding             :   0;
+    border              :   1px #000000 solid;
+}
+
+div#slidePlate {
+    width               :   400%;
+    height              :   560px;
+    position            :   absolute;
+    padding             :   0;
+}
+
+.slide {
+    width               :   25%;
+    height              :   558px;
+    text-align          :   center;
+    float               :   left;
+    padding             :   0;
+    position            :   relative;
+}
+
+p.prevNext {
+    position            :   absolute;
+    width               :   100%;
+    text-align          :   justify;
+    font-size           :   large;
+    font-weight         :   bold;
+    bottom              :   0;
+    left                :   0;
+}
+
+p.prevNext span.nextButton {
+    margin              :   0;
+    text-align          :   right;
+    float               :   right;
+    width               :   20%;
+}
+
+p.prevNext span.prevButton,
+p.prevNext span.nextButton{
+    cursor              :   pointer;
+}
+
+div.slide fieldset {
+    max-width           :   95%;
+    margin-left         :   auto;
+    margin-right        :   auto;
+}
+
+ul#tabs-nav {
+    width               :   50%;
+    padding             :   0;
+    margin-top          :   0;
+    margin-bottom       :   1em;
+    margin-left         :   auto;
+    margin-right        :   auto;
+}
+
+ul#tabs-nav li {
+    list-style          :   none;
+    margin-left         :   0;
+    margin-right        :   0;
+    padding-left        :   10px;
+    padding-right       :   10px;
+    border-right        :   1px dashed #000000;
+    border-left         :   1px dashed #000000;
+    cursor              :   pointer;
+    color               :   #000000;
+    background-color    :   #FFFFFF;
+}
+
+ul#tabs-nav li.selected {
+    font-weight         :   bold;
+    color               :   #FFFFFF;
+    background-color    :   #000000;
+}
+
+select.sourceBox {
+    width               :   100%;
+    min-height          :   30px;
+}
+
+div.sendtab {
+    clear               :   both;
+}
+
+div#leftPane {
+    width               :   35%;
+    float               :   left;
+}
+
+div#centrePane {
+    width               :   25%;
+    float               :   left;
+    margin              :   0 auto;
+    text-align          :   center;
+    padding-top         :   4em;
+}
+
+div#rightPane {
+    float               :   right;
+    width               :   35%;
+}
+
+#slide1 h2 {
+    margin-bottom       :   0;
+}
+
+#slide1 fieldset:first-child {
+    margin-top          :   0;    
+}
+
+#slide1 fieldset div:first-child {
+    margin-top          :   0;
+    margin-bottom       :   1em;
+}
+
+.unicodeWarning {
+    
+}
+
+.recipientTypeSelector {
+    border              :   1px #000000 solid;
+    padding             :   3px;
+}
+
+.recipientTypeSelector.selected {
+    font-weight         :   bold;
+}
+
+option.userRecipient,
+input[name=showUsers] {
+    background-color    :   #6DD95F;
+    color               :   #000000;
+}
+
+option.userGroupRecipient,
+input[name=showUserGroups] {
+    background-color    :   #37A828;
+    color               :   #000000;
+}
+
+option.addressbookRecipient,
+input[name=showAddressbookContacts] {
+    background-color    :   #91C8ED;
+    color               :   #000000;
+}
+
+option.addressbookGroupRecipient,
+input[name=showAddressbookGroups] {
+    background-color    :   #389CDE;
+    color               :   #000000;
+}
+
+option.additionalRecipient {
+    background-color    :   #FFFFFF;
+    color               :   #000000;
+}
+
+/* Any additional recipients that come back should be deleted.
+This hides them from view until our custom handler can delete them */
+select[name=recipients-f\[\]] option.additionalRecipient {
+    display             :   none;
+}
+
+select[name=finalRecipients],
+select[name=messageTemplates],
+select[name=confirmRecipients\[\]],
+textarea[name=messageText] {
+    width               :   100%;
+}
+
+input.submit {
+    background-color    :   transparent;
+    font-weight         :   bold;
+    border              :   1px #000000 solid;
+    color               :   #000000;
+}
+
+/*
+ * NAVIGATOR STYLING
+ */
+
+#navigator {
+    width               :   90%;
+    margin              :   0 auto;
+    clear               :   both;
+}
+
+#navigator ul {
+    clear               :   both;
+    color               :   #000000;
+    width               :   100%;
+    margin              :   0 0 -1px 0;
+    padding             :   0;
+    text-align          :   center;
+}
+
+#navigator ul li{
+    margin              :   0;
+    display             :   inline;
+    height              :   40px;
+    padding             :   5px 5px 0 5px;
+    list-style          :   none;
+    text-align          :   center;
+    cursor              :   pointer;
+    color               :   #000000;
+    background-color    :   #FFFFFF;
+    border              :   1px #000000 solid;
+    font-size           :   larger;
+}
+
+#navigator ul li.menuCurrent {
+    color               :   #FFFFFF;
+    background-color    :   #000000;
+}
+
+#navigator ul li.done{
+    background-color    :   #00D8FF;
+}
+
+/*
+ * Moodle QuickForm style overrides
+ */
+.mform .slide .fitem .fitemtitle {
+    width               :   35%;
+}
+
+.mform .slide .fitem .felement {
+    width               :   45%;
+    margin-left         :   35%;
+    padding-left        :   5px;
+    text-align          :   left;
+}
+
+.mform .slide .fitem .felement input[type=radio] {
+    margin-right        :   5px;
+}
+
+.mform .slide .fitem .felement:not(.fdate) select {
+    min-width           :   100px;
+}
+
+.mform .slide .fitem .felement input.hidden,
+.mform .slide .fitem .felement select.hidden,
+.mform .slide .fitem .felement button.hidden,
+.mform .slide .fitem .felement span.hidden {
+    display             :   none;
+}
+
+#recipients-f,
+#recipients-t {
+    width               :   80%;
+}
+
+/*#recipients-f option.userGroupRecipient,
+#recipients-f option.addressbookRecipient,
+#recipients-f option.addressbookGroupRecipient {
+    display             :   none;
+}*/
+
+.multiselect input[name=add] {
+    margin-top          :   20%;
+}
+
+.multiselect input[type=button] {
+    padding             :   5px;
+    font-size           :   larger;
+    font-weight         :   bold;
+}
