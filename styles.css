@@ -7,7 +7,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -18,7 +18,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052501
+ * @version 2013052201
  * @since 2011061201
  */
 
@@ -34,7 +34,7 @@
     margin-bottom       :   2em;
 }
 
-img.clickableIcon {
+img.mdltxtClickableIcon {
     cursor              :   pointer;
 }
 
@@ -46,18 +46,80 @@ select.mdltxt {
     min-width           :   100px;
 }
 
-.inlineList dt {
+.mdltxtInlineList dt {
     float               :   left;
     margin-right        :   0.3em;
     font-weight         :   bold;
 }
 
-.cleared {
+.mdltxtCleared {
     clear               :   both;
 }
 
-table.boxwidthwide {
+table.boxwidthwide { /* Augmentation of Moodle CSS class */
     width               :   100%;
+}
+
+div.mdltxtMultiselect div select:first-of-type {
+    min-width           :   100px;
+}
+
+/*
+ * INLINE FORM RENDERER STYLE OVERRIDES
+ */
+.mform fieldset.mtxtFieldsetHidden {
+    border              :   0;
+}
+
+.mform fieldset.mtxtInline {
+    padding             :   0;
+    display             :   inline;
+    width               :   auto;
+}
+ 
+ul.mtxtInlineFormElements{
+    margin-left         :   0;
+}
+
+ul.inline li, /* Mod of Moodle base class */
+ul.mtxtInlineFormElements li {
+    list-style          :   none;
+    display             :   inline;
+}
+
+/*
+ * CUSTOM STYLE MODIFIERS FOR ACCOUNTS PAGE
+ */
+button#mdltxtUpdateAllAccounts { 
+    display             :   block;
+    margin              :   1em auto 1em auto;
+}
+
+div#mdltxtAccountRestrictionsDialog select {
+    width               :   75%;
+}
+
+div#mdltxtAccountRestrictionsDialog input[type=text] {
+    width               :   75%;
+}
+
+/*
+ * ADDRESSBOOK LISTINGS
+ */
+#mdltxtAddressbookList li {
+    float               :   left;
+    width               :   30%;
+    line-height         :   16px;
+    list-style-position :   inside;
+    list-style-type     :   circle;
+}
+
+#mdltxtAddressbookList li.mdltxtPrivateAddressbook {
+    list-style-image    :   url([[pix:block_moodletxt|icons/book_private]]);
+}
+
+#mdltxtAddressbookList li.mdltxtGlobalAddressbook {
+    list-style-image    :   url([[pix:block_moodletxt|icons/book_global]]);
 }
 
 /*
@@ -87,14 +149,14 @@ span.mtxtTag {
     margin              :   3px;
     padding             :   3px;
     border-radius       :   7px 5px;
-    cursor              :   url(../blocks/moodletxt/pix/icons/hand.cur), url(pix/icons/hand.cur), default;
+    cursor              :   url([[pix:block_moodletxt|icons/hand]), url(pix/icons/hand.cur), pointer;
 }
 
 span.mtxtAppliedTag {
     border              :   1px solid;
     border-radius       :   2px;
     padding             :   1px;
-    cursor              :   url(../blocks/moodletxt/pix/icons/hand.cur), url(pix/icons/hand.cur), default;
+    cursor              :   url([[pix:block_moodletxt|icons/hand]]), url(pix/icons/hand.cur), pointer;
 }
 
 div.mtxtTagCloud p span.selected {
@@ -102,7 +164,7 @@ div.mtxtTagCloud p span.selected {
     font-weight         :   bold;
 }
 
-.controlTray {
+.mdltxtControlTray {
     position            :   fixed;
     width               :   100%;
     height              :   50px;
@@ -120,62 +182,26 @@ div.mtxtTagCloud p span.selected {
     overflow            :   hidden;
 }
 
-#newTagForm {
+#mdltxtNewTagForm {
     width               :   25%;
     float               :   right;
 }
 
-#tagListScroller {
+#mdltxtTagListScroller {
     height              :   45px;
     margin-top          :   3px;
     overflow-x          :   scroll;
     overflow-y          :   hidden;
 }
 
-.addTagButton {
+.mdltxtAddTagButton {
     cursor              :   pointer;
 }
 
 /* Override table highlighting from theme */
-#receivedMessagesList tr.droppableHighlight,
-#receivedMessagesList tr.droppableHighlight td,
+#mdltxtReceivedMessagesList tr.droppableHighlight,
+#mdltxtReceivedMessagesList tr.droppableHighlight td,
 .droppableHighlight {
     background-color    :   #ffe45c;
 }
 
-/*
- * INLINE FORM RENDERER STYLE OVERRIDES
- */
-.mform fieldset.mtxtFieldsetHidden {
-    border              :   0;
-}
-
-.mform fieldset.mtxtInline {
-    padding             :   0;
-}
- 
-ul.mtxtInlineFormElements{
-    margin-left         :   0;
-}
-
-ul.inline li,
-ul.mtxtInlineFormElements li {
-    list-style          :   none;
-    display             :   inline;
-}
-
-/*
- * CUSTOM STYLE MODIFIERS FOR ACCOUNTS PAGE
- */
-button#updateAllAccounts { 
-    display             :   block;
-    margin              :   1em auto 1em auto;
-}
-
-div#accountRestrictionsDialog select {
-    width               :   75%;
-}
-
-div#accountRestrictionsDialog input[type=text] {
-    width               :   75%;
-}

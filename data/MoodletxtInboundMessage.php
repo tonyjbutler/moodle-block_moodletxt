@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,14 +21,14 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2013052301
  * @since 2011040701
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
 require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtPhoneNumber.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStringHelper.php');
 
 /**
  * Data bean represents an inbound SMS message
@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2013052301
  * @since 2011040701
  */
 class MoodletxtInboundMessage {
@@ -466,7 +466,7 @@ class MoodletxtInboundMessage {
     /**
      * Gets the message source's name, formatted for display
      * @return string Formatted source name
-     * @version 2012051001
+     * @version 2013052301
      * @since 2012042401
      */
     public function getSourceNameForDisplay() {
@@ -474,7 +474,7 @@ class MoodletxtInboundMessage {
         if ($this->associatedSource instanceof MoodletxtRecipient)
             return $this->associatedSource->getFullNameForDisplay();
         else
-            return StringHelper::formatNameForDisplay($this->getSourceFirstName(), $this->getSourceLastName());
+            return MoodletxtStringHelper::formatNameForDisplay($this->getSourceFirstName(), $this->getSourceLastName());
         
     }
     

@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052901
+ * @version 2013070201
  * @since 2012031901
  */
 
@@ -28,8 +28,8 @@ require_once('../../config.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsSentMessageDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/connect/MoodletxtOutboundControllerFactory.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StatusIconFactory.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStringHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStatusIconFactory.php');
 
 $courseId   = required_param('course',   PARAM_INT);
 $instanceId = required_param('instance', PARAM_INT);
@@ -39,7 +39,7 @@ $update     = optional_param('update', 0, PARAM_INT);
 $STATUSES_PER_PAGE = 25;
 
 require_login($courseId, false);
-$blockcontext = get_context_instance(CONTEXT_BLOCK, $instanceId);
+$blockcontext = context_block::instance($instanceId);
 require_capability('block/moodletxt:sendmessages', $blockcontext, $USER->id);
 
 // OK, so you're legit. Let's load DAOs
@@ -50,9 +50,10 @@ $sentMessagesDAO = new TxttoolsSentMessageDAO();
 $messageObject = $sentMessagesDAO->getSentMessageById($messageId);
 
 if ($messageObject == null)
-    error(get_string('errorbadmessageid', 'block_moodletxt'));
-else if ($messageObject->getUser() != $USER->id && ! has_capability('block/moodletxt:adminusers', $blockcontext, $USER->id))
-    error(get_string('errornopermissionmessage', 'block_moodletxt'));
+    print_error('errorbadmessageid', 'block_moodletxt');
+
+else if ($messageObject->getUser()->getId() != $USER->id && ! has_capability('block/moodletxt:adminusers', $blockcontext, $USER->id))
+    print_error('errornopermissionmessage', 'block_moodletxt');
 
 
 // Set up the page for rendering
@@ -88,16 +89,12 @@ $tableheaders = array(
 $table->define_columns($tablecolumns);
 $table->define_headers($tableheaders);
 
-$table->sortable(true, 'time', 'ASC');
+$table->sortable(true, 'time', SORT_ASC);
 $table->no_sorting('destination');
 $table->no_sorting('recipient');
 $table->collapsible(true);
 $table->pageable(true);
 $table->pagesize($STATUSES_PER_PAGE, $sentMessagesDAO->countMessageRecipients($messageId));
-
-$table->column_class('recipient',    'mdltxt_columnline');
-$table->column_class('destination',  'mdltxt_columnline');
-$table->column_class('time',         'mdltxt_columnline');
 
 if ($download != '')
     $table->is_downloading($download, get_string('exportsheetsent', 'block_moodletxt'), get_string('exporttitlesent', 'block_moodletxt'));
@@ -142,7 +139,7 @@ if (! $table->is_downloading()) {
     $messageDetails .= html_writer::tag('dt', get_string('labelmessagetext', 'block_moodletxt'));
     $messageDetails .= html_writer::tag('dd', $messageObject->getMessageText());
     
-    $messageDL = html_writer::tag('dl', $messageDetails, array('class' => 'inlineList'));
+    $messageDL = html_writer::tag('dl', $messageDetails, array('class' => 'mdltxtInlineList'));
     echo($output->box($messageDL, 'generalbox mdltxt_left'));
     
     echo($output->heading(get_string('headerstatus', 'block_moodletxt'), 2, 'main cleared'));
@@ -219,7 +216,7 @@ if ($update == 1 || get_config('moodletxt', 'Get_Status_On_View') == '1') {
 
     } catch (MoodletxtRemoteProcessingException $ex) {
         
-        $fetchErrors[$ex->getCode()] = StringHelper::getLanguageStringForRemoteProcessingException($ex);
+        $fetchErrors[$ex->getCode()] = MoodletxtStringHelper::getLanguageStringForRemoteProcessingException($ex);
         
     }
 }
@@ -259,9 +256,9 @@ foreach($messageObject->getSentSMSMessages() as $message) {
     $latestStatus = array_pop($message->getStatusUpdates());
     
     if ($table->is_downloading())
-        $statusCell = $latestStatus->getStatus() . ' - ' . StringHelper::getLanguageStringForStatusCode($latestStatus->getStatus());
+        $statusCell = $latestStatus->getStatus() . ' - ' . MoodletxtStringHelper::getLanguageStringForStatusCode($latestStatus->getStatus());
     else
-        $statusCell = $output->render(StatusIconFactory::generateStatusIconForCode ($latestStatus->getStatus()));
+        $statusCell = $output->render(MoodletxtStatusIconFactory::generateStatusIconForCode ($latestStatus->getStatus()));
     
     // Add data set to the table
     $table->add_data(array(

@@ -1,6 +1,3 @@
-//<!--
-//<![CDATA[
-
 /**
  * jQuery script file for moodletxt admin page
  * 
@@ -10,7 +7,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +17,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052301
+ * @version 2013032101
  * @since 2011070401
  */
 
@@ -216,7 +213,7 @@ function lockUnlockLowerFilterForm(lock) {
  * Retrieves details of all existing filters on a txttools
  * account and displays them for the user
  * @param event Javascript event object for the onchange event
- * @version 2011071501
+ * @version 2012100901
  * @since 2011070401
  */
 function getFiltersOnAccount(event) {
@@ -254,7 +251,7 @@ function getFiltersOnAccount(event) {
 
                 lockUnlockUpperFilterForm(false);
 
-                // Drop blanker
+                // Drop in blanker
                 $existingPhoneNumberFilterList.append($BLANKER.clone());
                 $existingKeywordFilterList.append($BLANKER.clone());
 
@@ -268,6 +265,10 @@ function getFiltersOnAccount(event) {
                         $existingKeywordFilterList.append($pageElement);
                     }
                 });
+                
+                // Sort both lists
+                $existingPhoneNumberFilterList.sortOptions();
+                $existingKeywordFilterList.sortOptions();
 
             }
 
@@ -508,6 +509,3 @@ $(document).ready(function() {
     }
 
 });
-
-//]]>
-//-->

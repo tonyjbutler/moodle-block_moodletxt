@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052801
+ * @version 2013061701
  * @since 2012043101
  */
 
@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/connect/MoodletxtOutboundControl
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052801
+ * @version 2013061701
  * @since 2012042501
  */
 class MoodletxtInboxJSONHandler {
@@ -82,7 +82,7 @@ class MoodletxtInboxJSONHandler {
      * @param int $userId Owner of received messages
      * @return string JSON response
      * @throws MoodletxtAJAXException
-     * @version 2012052701
+     * @version 2013061701
      * @since 2012043101
      */
     public function processJSON($json, $userId) {
@@ -102,35 +102,64 @@ class MoodletxtInboxJSONHandler {
         switch($decoded->mode) {
 
             case 'getNewMessages':
-                $response = $this->getNewMessages($userId, (int) $decoded->lastMessageTime);
+                $response = $this->getNewMessages(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param($decoded->lastMessageTime, PARAM_INT)
+                );
                 break;
             
             case 'copyMessages':
-                $response = $this->copyMessagesToUser($userId, $decoded->messageIds, (int) $decoded->userId);
+                $response = $this->copyMessagesToUser(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param_array($decoded->messageIds, PARAM_INT), 
+                    clean_param($decoded->userId, PARAM_INT)
+                );
                 break;
             
             case 'moveMessages':
-                $response = $this->moveMessagesToUser($userId, $decoded->messageIds, (int) $decoded->userId);
+                $response = $this->moveMessagesToUser(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param_array($decoded->messageIds, PARAM_INT), 
+                    clean_param($decoded->userId, PARAM_INT)
+                );
                 break;
             
             case 'deleteMessages':
-                $response = $this->deleteMessages($userId, $decoded->messagesToDelete);
+                $response = $this->deleteMessages(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param_array($decoded->messagesToDelete, PARAM_INT)
+                );
                 break;
             
             case 'createTag':
-                $response = $this->createTag($userId, (string) $decoded->tagName, (string) $decoded->tagColour);
+                $response = $this->createTag(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param($decoded->tagName, PARAM_TAG), 
+                    preg_replace('/[^#A-Za-z]/', '', $decoded->tagColour)
+                );
                 break;
             
             case 'deleteTag':
-                $response = $this->deleteTag($userId, (string) $decoded->tagName);
+                $response = $this->deleteTag(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param($decoded->tagName, PARAM_TAG)
+                );
                 break;
             
             case 'addTagToMessage':
-                $response = $this->addTagToMessage($userId, (int) $decoded->messageId, (string) $decoded->tagName);
+                $response = $this->addTagToMessage(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param($decoded->messageId, PARAM_INT), 
+                    clean_param($decoded->tagName, PARAM_TAG)
+                );
                 break;
             
             case 'removeTagFromMessage':
-                $response = $this->removeTagFromMessage($userId, (int) $decoded->messageId, (string) $decoded->tagName);
+                $response = $this->removeTagFromMessage(
+                    clean_param($userId, PARAM_INT), 
+                    clean_param($decoded->messageId, PARAM_INT), 
+                    clean_param($decoded->tagName, PARAM_TAG)
+                );
                 break;
             
             default:

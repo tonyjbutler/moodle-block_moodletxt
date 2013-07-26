@@ -10,9 +10,9 @@
  *
  * @author A J Marston <http://www.tonymarston.net>
  * @copyright 2003-2004 by A J Marston <http://www.tonymarston.net>
- * @see Encryption
+ * @see MoodletxtEncryption
  */
-class LegacyEncryption {
+class MoodletxtLegacyEncryption {
 
     private $scramble1;         // 1st string of ASCII characters
     private $scramble2;         // 2nd string of ASCII characters

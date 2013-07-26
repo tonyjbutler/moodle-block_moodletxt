@@ -1,6 +1,3 @@
-<!--
-//<![CDATA[
-
 /**
  * Common JS library file for moodletxt
  * 
@@ -10,7 +7,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +18,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012030701
+ * @version 2013032101
  * @since 2011061001
  */
 
@@ -365,7 +362,3 @@ function updateMessageBox($messageObject, actionSet) {
     }
 
 }
-
-
-//]]>
-//-->

@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -19,7 +19,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052901
+ * @version 2013071001
  * @since 2006081012
  */
 
@@ -36,36 +36,13 @@ $string['billingtypeprepaid']           = 'Pre-paid';
 
 // Add contact page
 
-$string['addcontactbutton']             = 'Add contact and add another';
-$string['addcontactbuttonreturn']       = 'Add contact and return to address book';
-$string['addcontactlblcompany']         = 'Company Name:';
-$string['addcontactlblfirstname']       = 'First Name:';
-$string['addcontactlbllastname']        = 'Last Name:';
-$string['addcontactlblphoneno']         = 'Phone No:';
-$string['addcontactheader']             = 'Add a Contact';
-$string['addcontactheadergroups']       = 'Group Membership';
-$string['addcontactpara1']              = 'To add this contact to one or more groups in your address book, select the groups from the available list on the left and transfer them to the selected list on the right.';
 $string['addcontactsuccessful']         = 'Contact added successfully.';
-$string['addcontacttitle']              = 'Add a Contact in ';
 
 // Address book page
 
-$string['addressadd']                   = 'Add a new address book';
-$string['addressbookadded']             = 'The address book was added successfully.';
-$string['addressbookdeleted']           = 'The address book was deleted successfully.';
 $string['addressbookupdated']           = 'The address book was updated successfully.';
-$string['addressbutaddbook']            = 'Add address book';
-$string['addressbutdelbook']            = 'Delete address book';
-$string['addressdelete']                = 'Delete an existing address book';
-$string['addressexisting']              = 'Your existing address books';
 $string['addressfragnodest']            = 'Nowhere - delete the contacts';
-$string['addressfragtypeglobal']        = 'Global';
-$string['addressfragtypeprivate']       = 'Private';
-$string['addressheader']                = 'Your Address Books';
-$string['addresslblnewname']            = 'Address book name:';
-$string['addresslblkill']               = 'Select address book to delete:';
 $string['addresslblmove']               = 'Move contacts in this book to:';
-$string['addresslbltype']               = 'Address book type:';
 $string['addresstitle']                 = 'Address Books for ';
 
 // Admin page
@@ -84,6 +61,7 @@ $string['admindescdefaultname']         = 'The default name moodletxt should ass
 $string['admindescdefaultprefix']       = 'The international prefix for phone numbers within your country.';
 $string['admindescdefnatprefix']        = 'The default prefix for phone numbers within your country.';
 $string['admindescdisablewarn']         = 'Should moodletxt display warnings when SSL connections are not enabled?';
+$string['admindesceventaccount']        = 'Which ConnectTxt account to use when sending messages generated in response to Moodle system events. This is required for the moodletxt+ messaging plugin to work.';
 $string['admindescjqueryinclude']       = 'Controls whether or not the jQuery Javascript framework will be loaded by moodletxt when required. If you already include the jQuery library as part of your Moodle theme, you should disable this include.';
 $string['admindescjqueryuiinclude']     = 'Controls whether or not the jQuery User Interface extension will be loaded by moodletxt when required. If you already include jQuery UI as part of your Moodle theme, you should disable this include.';
 $string['admindescmiscsettings']        = 'These are the various system settings that don\'t fit under any other heading, such as update notifications, interface tweaks, etc.';
@@ -98,7 +76,7 @@ $string['admindescrecipsettings']       = 'These settings change where/how moodl
 $string['admindescrssexpire']           = 'How long a new RSS update should be displayed for on the admin page after being published.';
 $string['admindescrssupdate']           = 'How often moodletxt should check for new updates to the moodletxt RSS feed.';
 $string['admindescsendreceive']         = 'These settings are used to control the sending and receiving of messages within the block, and how updates/inbound messages are received.';
-$string['admindescsetautoinbound']      = 'Should moodletxt connect to fetch inbound messages when their inbox page is opened?';
+$string['admindescsetautoinbound']      = 'Should moodletxt connect to fetch inbound messages when a user\'s inbox page is opened?';
 $string['admindescsetautoupdate']       = 'Should moodletxt connect to fetch status updates when the message details page is opened?';
 $string['admindescsetxmluser']          = 'The username ConnectTxt should use when sending messages/status updates to you via XML push. This is not your ConnectTxt username.';
 $string['admindescsetxmlpass']          = 'The password ConnectTxt should use when sending messages/status updates to you via XML push. This is not your ConnectTxt password.';
@@ -150,6 +128,7 @@ $string['adminlabeldefnatprefix']       = 'National Prefix:';
 $string['adminlabeldefaultname']        = 'Default Recipient Name:';
 $string['adminlabeldefaultprefix']      = 'Default International Prefix:';
 $string['adminlabeldisablewarn']        = 'Display SSL security warnings.';
+$string['adminlabeleventaccount']       = 'Event Messaging Account:';
 $string['adminlabelexistingacc']        = 'Available ConnectTxt accounts:';
 $string['adminlabelexistingfilters']    = 'Existing filters';
 $string['adminlabelfilteracc']          = 'Select an account to add filter to:';
@@ -181,6 +160,7 @@ $string['adminlinkfilters']             = 'Inbound Message Filters';
 $string['adminnoaccount']               = 'No accounts found to display';
 $string['adminnoticefilterdeleted']     = 'Removed filter from system.';
 $string['adminnoticefilterupdated']     = 'Filter updated successfully.';
+$string['adminselecteventsdisabled']    = 'Disabled - No active account selected.';
 $string['adminselectphone1']            = 'Phone 1';
 $string['adminselectphone2']            = 'Phone 2';
 $string['adminselectprotocolssl']       = 'SSL - secure encrypted';
@@ -224,7 +204,9 @@ $string['altaccessdenied']              = 'Access Denied';
 $string['altaccessedit']                = 'Edit Access';
 $string['altaccessinbound']             = 'Inbound Active';
 $string['altaccessoutbound']            = 'Outbound Active';
+$string['altaccountedit']               = 'Edit Account';
 $string['altaddtag']                    = 'Add Tag';
+$string['altarrow']                     = 'Arrow';
 $string['altdelete']                    = 'Delete';
 $string['altinbox']                     = 'Inbox';
 $string['altaddfilter']                 = 'Add Filter';
@@ -250,13 +232,23 @@ $string['blocklinksent']                = 'Sent Messages';
 $string['blocklinksettings']            = 'Change Admin Options';
 $string['blocklinkstats']               = 'View user stats';
 $string['blockname']                    = 'moodletxt';
-$string['blocktitle']                   = 'moodletxt 3.0-beta1';
+$string['blocktitle']                   = 'moodletxt 3.0.5';
 $string['blockfooter']                  = 'Powered by <a href="http://www.bbconnecttxt.com">ConnectTxt</a>';
 $string['pluginname']                   = 'moodletxt';
 
 // Buttons
 
 $string['buttonadd']                    = 'Add';
+$string['buttoncancel']                 = 'Cancel';
+$string['buttoncheckall']               = 'Check all';
+$string['buttoncontactadd']             = 'Add contact and add another';
+$string['buttoncontactaddreturn']       = 'Add contact and return to address book';
+$string['buttondeleteormerge']          = 'Delete/Merge';
+$string['buttondeletenotselected']      = 'Delete all records except those currently selected';
+$string['buttondeleteselected']         = 'Delete the selected records';
+$string['buttongroupadd']               = 'Add Group';
+$string['buttongroupedit']              = 'Update Group';
+$string['buttongroupdelete']            = 'Delete Group';
 $string['buttonremove']                 = 'Remove';
 $string['buttonremoveusers']            = 'Remove User(s)';
 $string['buttonsave']                   = 'Save';
@@ -266,6 +258,7 @@ $string['buttontaglastname']            = 'Last Name';
 $string['buttontagfullname']            = 'Full Name';
 $string['buttontemplatedelete']         = 'Delete Template';
 $string['buttontemplateedit']           = 'Edit Template';
+$string['buttonuncheckall']             = 'Uncheck all';
 $string['buttonupdate']                 = 'Update';
 
 // Instance config page
@@ -277,29 +270,16 @@ $string['configtitle']                  = 'Enter a title for the block:';
 $string['configdefaultrecipient']       = 'Moodler';
 $string['configdefaultsource']          = 'Moodler';
 
+// Description strings (checkboxes/radio buttons in forms, usually)
+$string['desccontactsdelete']           = 'Deletes the addressbook and deletes all contacts and groups in it.';
+$string['desccontactsmerge']            = 'Deletes the addressbook and moves all its contacts and groups into:';
+$string['descgroupdelleavecontacts']    = 'Delete the group, leave contacts in address book';
+$string['descgroupdelmerge']            = 'Delete the group and merge its contacts into';
+$string['descgroupdelnukecontacts']     = 'Delete the group and all contacts in it';
+
 // Address book edit page
 
-$string['editbookaddlink']              = 'Add a contact';
-$string['editbookbutcheckall']          = 'Check all';
-$string['editbookbutuncheckall']        = 'Uncheck all';
-$string['editbookbutcancel']            = 'Cancel';
-$string['editbookbutsave']              = 'Save';
-$string['editbookbutupdate']            = 'Update';
 $string['editbookcontactsperpage']      = 'contacts per page';
-$string['editbookdelnotselected']       = 'Delete All But Selected Contacts';
-$string['editbookdelselected']          = 'Delete Selected Contacts';
-$string['editbookdoubleclick']          = 'Double click on a contact to edit it.';
-$string['editbookgroupslink']           = 'Manage groups';
-$string['editbookheader']               = 'Editing Address Book';
-$string['editbooklblname']              = 'Address book name:';
-$string['editbooklbltable']             = 'Double click on a contact entry to edit it.';
-$string['editbooklbltype']              = 'Type:';
-$string['editbookselectedaction']       = 'With selected...';
-$string['editbooktableheader1']         = 'Last Name';
-$string['editbooktableheader2']         = 'First Name';
-$string['editbooktableheader3']         = 'Company Name';
-$string['editbooktableheader4']         = 'Phone Number';
-$string['editbooktitle']                = 'Editing address book:';
 
 // Error messages
 
@@ -315,7 +295,7 @@ $string['errorbookaddfailed']           = 'Failed to add the address book.  Plea
 $string['errorbooknameexists']          = 'The address book name already exists';
 $string['errorbooknamelength']          = 'The address book name is too long.  Names cannot be longer than 50 characters.';
 $string['errorbooknotdeleted']          = 'There was an error when deleting the address book.  If selected, contacts and groups have already been moved to the target address book.  Please contact your system administrator for further assistance.';
-$string['errorbooknotowned']            = 'Form hacking detected - you are attempting to delete an address book you do not own.';
+$string['errorbooknotowned']            = 'You are attempting to edit or delete an address book you do not own.';
 $string['errorconn401']                 = 'Moodletxt was not granted access to the bbconnecttxt.com system. Reason unknown. This is not a user authentication error. HTTP error code: ';
 $string['errorconn404']                 = 'Moodletxt could not find the XML connector on the ConnectTxt server. This may be due to a temporary loss of service, or your Moodletxt version may be out of date.  Please contact ConnectTxt support for more information.';
 $string['errorconn500']                 = 'There was an internal error on the ConnectTxt server that prevented the XML request from being processed.  This error should be temporary.  Please contact ConnectTxt support for more information.';
@@ -338,6 +318,7 @@ $string['errorconnrss500']              = 'There was an internal error on the Co
 $string['errorconnrss503']              = 'The ConnectTxt RSS service is currently unavailable.  Please try again later.  If the problem persists, please contact ConnectTxt support.';
 $string['errorconnrssdefault']          = 'An error occurred when attempting to contact the moodletxt RSS service.  The HTTP response code was: ';
 $string['errordestbooknotowned']        = 'Form hacking detected: You do not own the destination address book.  Please select a valid destination for contacts.';
+$string['errordestbooknull']            = 'You have selected to merge contacts into another address book. Please select the address book to merge contacts into.';
 $string['errordestbooksame']            = 'The destination address book for contacts is the same as the one being deleted.';
 $string['errordestfoldersame']          = 'The destination folder for messages is the same as the folder being deleted.';
 $string['errordestgroupinvalid']        = 'The destination group for contacts is invalid, or you do not own it.';
@@ -353,12 +334,13 @@ $string['errorfoldernametoolong']       = 'Folder names cannot be more than 30 c
 $string['errorformhackaccount']         = 'Form hacking detected.  You are not authorised to use the ConnectTxt account selected.';
 $string['errorformhacktemplate']        = 'The template ID entered was invalid.  Quit hacking the form.';
 $string['errorglobalbooknotallowed']    = 'You do not have the necessary permissions to create global address books.';
+$string['errorgroupnameexists']         = 'The name you have specified for the new group already exists within your address book.';
 $string['errorgroupnotadded']           = 'The group could not be added. Please try again later. If the problem persists, please contact your system administrator.';
 $string['errorgroupsmakechoice']        = 'Please indicate what moodletxt should do with contacts within the group to be deleted.';
 $string['errorinboxcantconnect']        = 'One or more of your ConnectTxt accounts could not connect to check for new messages.  Please ask an administrator to check your account details in the moodletxt control panel.';
 $string['errorinvalidbookid']           = 'Form hacking detected. The address book ID is invalid.';
 $string['errorinvalidbooktype']         = 'Form hacking detected.  The book type entered on the form was invalid.  Please select a valid book type.';
-$string['errorinvalidchoice']           = 'You did not indicate what should happen to contacts within this address book. Please make a valid selection from the options shown.';
+$string['errorinvalidgroupchoice']      = 'You did not indicate what should happen to contacts within this address book group. Please make a valid selection from the options shown.';
 $string['errorinvaliddate']             = 'The date/time entered for scheduling is invalid.  Please enter a valid date.';
 $string['errorinvalidaccount']          = 'No valid account was selected from the list.  Please select an account to modify.';
 $string['errorinvalidaccountid']        = 'An invalid account ID was provided.';
@@ -372,6 +354,7 @@ $string['errormessagetoolong']          = 'The message entered was too long.  Th
 $string['errormovecontactsfailed']      = 'The system was unable to move contacts from one address book to the other.  Delete cancelled. Please contact your system administrator.';
 $string['errormovegroupsfailed']        = 'The system was unable to move contact groups from one address book to the other.  Delete cancelled.  Individual contacts have already been moved.  Please contact your system administrator.';
 $string['errornoaccountselected']       = 'No ConnectTxt account was selected to send the message from.';
+$string['errornoaccountspresent']       = 'No ConnectTxt accounts have been added to moodletxt. The system administrator must link moodletxt to one or more ConnectTxt accounts before messages can be sent.';
 $string['errornobookname']              = 'No address book name was entered';
 $string['errornogroupname']             = 'You must enter a name for the new group';
 $string['errornogroupselected']         = 'No group was selected to send to.  Please select a valid group from the list.';
@@ -388,7 +371,7 @@ $string['errornopermission']            = 'You do not have permission to view th
 $string['errornopermissioncourse']      = 'You do not have permission to send text messages on this course.';
 $string['errornopermissionmessage']     = 'You are not authorised to view this message.';
 $string['errornorecipients']            = 'No recipients were found for this message.  It was not received.  The most likely reason is that there was an error when attempting to send the message.  Please contact your administrator for more information.';
-$string['errornorecipientsselected']    = 'No recipients were selected to send to.  Please select an individual from the list given.';
+$string['errornorecipientsselected']    = 'No recipients were selected to send to.  Please select individuals or groups from the list provided, or enter additional contact details at the bottom of the form.';
 $string['errornorecipienttype']         = 'No recipient type was selected.  Please indicate whether you wish to send to an individual or a group';
 $string['errornoscheduling']            = 'No scheduling option was selected.  Please indicate when you want the message to be sent.';
 $string['errornotemplate']              = 'You must enter a template';
@@ -409,22 +392,39 @@ $string['errortemplateupdatefail']      = 'The template could not be updated.  P
 $string['errorupdatecontactfailed']     = 'The contact could not be updated. Please try again later.';
 
 // File export data
+$string['exportsheetcontacts']          = 'moodletxt_addressbook_contacts';
 $string['exportsheetinbox']             = 'moodletxt_received_messages';
 $string['exportsheetsent']              = 'moodletxt_sent_messages';
+$string['exporttitlecontacts']          = 'Addressbook Contacts from Moodletxt';
 $string['exporttitleinbox']             = 'Messages Received in Moodletxt';
 $string['exporttitlesent']              = 'Messages Sent from Moodletxt';
 
 // Miscellaneous text fragments
 $string['fragloading']                  = 'Loading...';
+$string['fragsystem']                   = 'Moodle System';
 $string['fragunknown']                  = 'Unknown';
 $string['fragunknownname']              = 'Unknown';
+$string['fraguser']                     = 'User';
 
 // Headers
 
+$string['headeraccountedit']            = 'Edit account';
 $string['headeraccountrestrictionsfor'] = 'Outbound Access Restrictions for:';
 $string['headeraddaccount']             = 'Adding a new ConnectTxt account to moodletxt';
+$string['headeraddressbookadd']         = 'Add a new address book';
+$string['headeraddressbookdelete']      = 'Delete an existing address book';
+$string['headeraddressbookedit']        = 'Editing Address Book';
+$string['headeraddressbooksexisting']   = 'Your existing address books';
+$string['headeraddressbooks']           = 'Your Address Books';
 $string['headercomposemessagebody']     = 'Compose Message';
+$string['headercontactadd']             = 'Add a Contact';
+$string['headercontactdetails']         = 'Contact Details';
 $string['headerfilters']                = 'Manage Inbound Message Filters';
+$string['headergroupadd']               = 'Add a Group';
+$string['headergroupdelete']            = 'Delete a Group';
+$string['headergroupedit']              = 'Update Group Members';
+$string['headergroupmembership']        = 'Group Membership';
+$string['headergroupsmanage']           = 'Manage Groups';
 $string['headerinboundprefs']           = 'My Inbox Preferences';
 $string['headerinstanceconfig']         = 'Instance Settings for moodletxt';
 $string['headermessagedetails']         = 'Message Details';
@@ -483,17 +483,33 @@ $string['inboxfolderslbldest']          = 'Move messages in this folder to:';
 // Labels
 
 $string['labelactions']                 = 'Actions:';
-$string['labeladditionalname']          = 'Enter first name/last name:';
+$string['labeladditionalfirstname']     = 'Enter first name:';
+$string['labeladditionallastname']      = 'Enter last name:';
 $string['labeladditionalnumber']        = 'Enter number here (eg +44123456789):';
+$string['labeladdressbookdelete']       = 'Select address book to delete:';
+$string['labeladdressbookname']         = 'Address book name:';
+$string['labeladdressbooktype']         = 'Address book type:';
 $string['labeladdresscontacts']         = 'Address Book Contacts:';
 $string['labeladdressgroups']           = 'Address Book Groups:';
 $string['labeladdsignature']            = 'Add signature:';
 $string['labelblocktitle']              = 'Block title';
+$string['labelcompanyname']             = 'Company Name:';
+$string['labelcontactsdelete']          = 'Delete Contacts';
+$string['labelcontactsmerge']           = 'Merge Contacts';
+$string['labelcontactspotential']       = 'Potential group members:';
+$string['labelcontactsselected']        = 'Selected group members:';
 $string['labelcharspermessage']         = 'Characters per message:';
 $string['labelcharsremaining']          = 'Characters remaining:';
 $string['labelcharsused']               = 'Characters/messages used:';
 $string['labelfinalrecipients']         = 'Message Recipients';
+$string['labelfirstname']               = 'First Name:';
 $string['labelfolderjump']              = 'Jump to:';
+$string['labelgroupdelleavecontacts']   = 'Preserve Contacts';
+$string['labelgroupdelmerge']           = 'Merge Contacts';
+$string['labelgroupdelnukecontacts']    = 'Delete Contacts';
+$string['labelgroupdesc']               = 'Group Description:';
+$string['labelgroupname']               = 'Group Name:';
+$string['labelgroupsselect']            = 'Select group:';
 $string['labelhideinboundsources']      = 'Hide sources on inbox page:';
 $string['labelinboundliveinterval']     = 'How often to check with Moodle for new messages:';
 $string['labelinterval1min']            = '1 minute';
@@ -501,10 +517,14 @@ $string['labelinterval2min']            = '2 minutes';
 $string['labelinterval5min']            = '5 minutes';
 $string['labelinterval10min']           = '10 minutes';
 $string['labelinterval15min']           = '15 minutes';
+$string['labellastname']                = 'Last Name:';
 $string['labelmergetags']               = 'Insert into the message:';
 $string['labelmessageauthor']           = 'Message Author:';
 $string['labelmessagetext']             = 'Message Text:';
 $string['labelnewtag']                  = 'New Tag:';
+$string['labelpasswordnew']             = 'New Password:';
+$string['labelphonenumber']             = 'Phone No:';
+$string['labelpotentialgroups']         = 'Addressbook Groups';
 $string['labelpotentialrecipients']     = 'Potential Recipients:';
 $string['labelrecipients']              = 'Recipients:';
 $string['labelrecipienttypeselect']     = 'Show:';
@@ -513,9 +533,12 @@ $string['labelscheduledfor']            = 'Scheduled For:';
 $string['labelscheduletime']            = 'Schedule time';
 $string['labelschedulenow']             = 'Send now';
 $string['labelschedulelater']           = 'Schedule to send later';
+$string['labelselectedgroups']          = 'Add contact to:';
 $string['labelselectedrecipients']      = 'Selected Recipients';
 $string['labelsignature']               = 'Signature:';
 $string['labelsearchusers']             = 'Search Users:';
+$string['labelshowmessagebygenerator']  = 'Messages to show:';
+$string['labelshowmessagesforuser']     = 'User to view:';
 $string['labelstatusdelivered']         = 'Message delivery confirmed as received by the mobile phone.';
 $string['labelstatusfailed']            = 'Message delivery has failed and will not be delivered to the mobile phone.';
 $string['labelstatustransit']           = 'Message has been sent. No errors or handset delivery confirmation received.';
@@ -531,12 +554,15 @@ $string['labeltimesent']                = 'Time Sent:';
 $string['labeltxttoolsaccount']         = 'ConnectTxt account:';
 $string['labelusergroups']              = 'Moodle User Groups:';
 $string['labeluserlist']                = 'Moodle Users:';
+$string['labelwithselected']            = 'With Selected:';
 
 // Fieldset legends
 
 // Links
 
 $string['linkaddaccount']               = 'Add New Account';
+$string['linkaddcontact']               = 'Add a contact';
+$string['linkmanagegroups']             = 'Manage groups';
 
 // Logging strings
 
@@ -547,31 +573,13 @@ $string['logxmlparsedobjects']          = 'Parsed inbound objects:';
 
 // Manage Groups page
 
-$string['mangroupsactionleave']         = 'Delete the group, leave contacts in address book';
-$string['mangroupsactionmerge']         = 'Delete the group and merge its contacts into';
-$string['mangroupsactionnuke']          = 'Delete the group and all contacts in it';
-$string['mangroupsadded']               = 'Group added successfully.';
-$string['mangroupsbutaddgroup']         = 'Add Group';
-$string['mangroupsbutdelete']           = 'Delete Group';
-$string['mangroupsbutton']              = 'Update Group';
 $string['mangroupscontactsdeleted']     = 'Group and contacts deleted.';
-$string['mangroupsdeleted']             = 'Group successfully deleted';
-$string['mangroupsheader']              = 'Manage Groups';
 $string['mangroupslbldelete']           = 'Group to delete:';
-$string['mangroupslblgrouplist']        = 'Select Group:';
-$string['mangroupslblnewdesc']          = 'Description:';
-$string['mangroupslblnewname']          = 'Group Name:';
-$string['mangroupslblpotential']        = 'Potential group members:';
-$string['mangroupslblselected']         = 'Selected group members:';
-$string['mangroupslegaddgroup']         = 'Add a Group';
-$string['mangroupslegdelete']           = 'Delete a Group';
-$string['mangroupslegupdate']           = 'Update Group Members';
 $string['mangroupsmerged']              = 'Group successfully merged.';
-$string['mangroupstitle']               = 'Manage Groups in ';
-$string['mangroupsupdated']             = 'Group updated.';
 
 // Capability Names
 
+$string['moodletxt:addinstance']        = 'Add a new Moodletxt block';
 $string['moodletxt:addressbooks']       = 'Create Addressbooks';
 $string['moodletxt:adminsettings']      = 'Administer System Settings';
 $string['moodletxt:adminusers']         = 'View/Change User Settings';
@@ -579,11 +587,14 @@ $string['moodletxt:defaultinbox']       = 'Receive Unfiltered Messages';
 $string['moodletxt:globaladdressbooks'] = 'Create Global Addressbooks';
 $string['moodletxt:personalsettings']   = 'Can create templates/change own settings';
 $string['moodletxt:receivemessages']    = 'Receive Inbound Messages';
-$string['moodletxt:sendmessages']       = "Send Messages";
+$string['moodletxt:sendmessages']       = 'Send Messages';
 $string['moodletxt:viewstats']          = "View user statistics";
 
 // Navigation linkage
 $string['navaccounts']                  = 'ConnectTxt Accounts';
+$string['navaddressbookedit']           = 'Edit Addressbook';
+$string['navaddressbooks']              = 'Addressbooks';
+$string['navcontactadd']                = 'Add a Contact';
 $string['navfilters']                   = 'Inbound Filters';
 $string['navmoodletxt']                 = 'moodletxt';
 $string['navnewaccount']                = 'Adding a New Account';
@@ -598,6 +609,13 @@ $string['navslidemessageopts']          = 'Step 3: Message Options';
 $string['navslidereview']               = 'Step 4: Review &amp; Send';
 
 // Page notifications
+$string['notifyaddressbookdeleted']     = 'The address book was deleted successfully.';
+$string['notifyaddressbookadded']       = 'The address book was added successfully.';
+$string['notifycontactadded']           = 'The contact was added to the addressbook successfully.';
+$string['notifydoubleclickcontact']     = 'Double click on a contact entry to edit it.';
+$string['notifygroupadded']             = 'Group added successfully.';
+$string['notifygroupupdated']           = 'Group updated.';
+$string['notifygroupdeleted']           = 'Group successfully deleted';
 $string['notifyprefsupdated']           = 'Preferences saved to system.';
 $string['notifytemplateadded']          = 'The template was added to the system.';
 $string['notifytemplatedeleted']        = 'The template was deleted successfully.';
@@ -605,9 +623,15 @@ $string['notifytemplateupdated']        = 'The template was successfully updated
 
 // Select options
 
+$string['optionaddressbookglobal']      = 'Global';
+$string['optionaddressbookprivate']     = 'Private';
+$string['optionallusers']               = 'All Users';
 $string['optionchoosetemplate']         = 'Choose a template...';
 $string['optioncopy']                   = 'Copy to...';
 $string['optiondelete']                 = 'Delete';
+$string['optioneventhide']              = 'Hide event-generated messages';
+$string['optioneventonly']              = 'Show only event-generated messages';
+$string['optioneventshow']              = 'Show both event-generated and user-generated messages';
 $string['optionfolders']                = 'Your folders...';
 $string['optionmove']                   = 'Move to...';
 $string['optionwithselected']           = 'With selected...';
@@ -620,6 +644,7 @@ $string['parserinvalidxml']             = 'The connection to the ConnectTxt syst
 // Redirects
 
 $string['redirectaccountsfound']        = 'ConnectTxt accounts found, redirecting to account admin...';
+$string['redirectcontactadded']         = 'Contact added, returning you to the address book...';
 $string['redirectmessagesent']          = 'Message sent. We are now taking you to the sent page. Hold tight!';
 $string['redirectnoaccountsfound']      = 'No ConnectTxt accounts found. Taking you to the new installation page...';
 
@@ -697,9 +722,14 @@ $string['statstableheaderuser']         = 'User';
 $string['statstitle']                   = 'moodletxt User Statistics';
 
 // Page titles
+$string['titleaccountadd']              = 'moodletxt - Add a New ConnectTxt Account';
+$string['titleaccountedit']             = 'Editing a ConnectTxt Account';
 $string['titleaccountrestrictions']     = 'Outbound Account Restrictions';
-$string['titleaddaccount']              = 'Add a ConnectTxt account';
+$string['titleaddressbookedit']         = 'Editing a moodletxt address book';
+$string['titleaddressbooks']            = 'moodletxt Addressbooks for';
+$string['titlecontactadd']              = 'moodletxt - Add a Contact in';
 $string['titlefilters']                 = 'Manage Filters';
+$string['titlegroupsmanage']            = 'Manage Groups in ';
 $string['titlenewinstall']              = 'moodletxt - New Installation';
 $string['titlepreferences']             = 'moodletxt - My Preferences';
 $string['titlereceivedmessages']        = 'moodletxt Inbox for';
@@ -713,13 +743,19 @@ $string['titlestatus']                  = 'Viewing a Message in';
 $string['tableheaderaccounttype']       = 'Account Type';
 $string['tableheaderallowinbound']      = 'Allow Inbound';
 $string['tableheaderallowoutbound']     = 'Allow Outbound';
+$string['tableheadercompany']           = 'Company Name';
+$string['tableheadercontactid']         = 'Contact ID';
 $string['tableheadercreditsleft']       = 'Credits Remaining';
 $string['tableheadercreditsused']       = 'Credits Used';
 $string['tableheaderdescription']       = 'Description';
 $string['tableheaderdestination']       = 'Destination Number';
+$string['tableheaderfirstname']         = 'First Name';
+$string['tableheadergeneration']        = 'Created by';
+$string['tableheaderlastname']          = 'Last Name';
 $string['tableheaderlastupdate']        = 'Last Update';
 $string['tableheadermessages']          = 'Messages Sent';
 $string['tableheadermessagetext']       = 'Message Text';
+$string['tableheaderphoneno']           = 'Phone Number';
 $string['tableheaderrecipient']         = 'Recipient';
 $string['tableheaderstatus']            = 'Message Status';
 $string['tableheadertimesent']          = 'Time Sent';
@@ -727,7 +763,6 @@ $string['tableheadertimeupdated']       = 'Time of Update';
 $string['tableheadertxttoolsaccount']   = 'ConnectTxt Account';
 $string['tableheaderuser']              = 'Moodle User';
 $string['tableheaderusername']          = 'Username';
-
 
 // View Message Page
 

@@ -10,7 +10,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052901
+ * @version 2013070201
  * @since 2011042601
  */
 
@@ -31,11 +31,11 @@ require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/MoodletxtMoodleUserDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/forms/NewTxttoolsAccountForm.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/lib/Encryption.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/lib/MoodletxtEncryption.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/connect/MoodletxtOutboundControllerFactory.php');
 
 require_login();
-require_capability('block/moodletxt:adminsettings', get_context_instance(CONTEXT_SYSTEM));
+require_capability('block/moodletxt:adminsettings', context_system::instance());
 
 // OK, so you're legit. Let's load DAOs
 $accountDAO = new TxttoolsAccountDAO();
@@ -50,6 +50,7 @@ admin_externalpage_setup('manageblocks'); // Shortcut function sets up page for 
 $PAGE->set_url('/blocks/moodletxt/settings_accounts_new.php');
 $PAGE->set_button(''); // Clear editing button
 $PAGE->set_focuscontrol('id_accountName'); // Focus username field on load
+$PAGE->set_docs_path('admin/setting/moodletxtaccountsnew'); // External admin pages get their MoodleDocs links messed up
 $PAGE->navbar->add(get_string('navmoodletxt', 'block_moodletxt'), $CFG->wwwroot . '/admin/settings.php?section=blocksettingmoodletxt', navigation_node::TYPE_CUSTOM, 'moodletxt');
 $PAGE->navbar->add(get_string('navaccounts', 'block_moodletxt'), $CFG->wwwroot . '/blocks/moodletxt/settings_accounts.php', navigation_node::TYPE_CUSTOM, 'moodletxt');
 
@@ -59,7 +60,7 @@ if ($numberOfAccounts == 0) {
     $PAGE->navbar->add(get_string('navnewaccount', 'block_moodletxt'), null, navigation_node::TYPE_CUSTOM, 'moodletxt');
 } else {
     $PAGE->set_heading(get_string('headeraddaccount', 'block_moodletxt'));
-    $PAGE->set_title(get_string('titleaddaccount', 'block_moodletxt'));
+    $PAGE->set_title(get_string('titleaccountadd', 'block_moodletxt'));
     $PAGE->navbar->add(get_string('navnewinstall', 'block_moodletxt'), null, navigation_node::TYPE_CUSTOM, 'moodletxt');
 }
 
@@ -80,7 +81,7 @@ if ($formData != null) {
     
     } else {
         
-        $encrypter = new Encryption();
+        $encrypter = new MoodletxtEncryption();
         $key = get_config('moodletxt', 'EK');
         $xmlController = MoodletxtOutboundControllerFactory::getOutboundController(
             MoodletxtOutboundControllerFactory::$CONTROLLER_TYPE_XML

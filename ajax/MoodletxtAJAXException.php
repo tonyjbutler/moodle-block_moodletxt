@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052201
+ * @version 2012090501
  * @since 2011061201
  */
 
@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052201
+ * @version 2012090501
  * @since 2011061201
  */
 class MoodletxtAJAXException extends Exception {
@@ -64,10 +64,22 @@ class MoodletxtAJAXException extends Exception {
     public static $ERROR_CODE_BAD_USER_ID = 703;
     
     /**
+     * Error code for when an invalid addressbook contact ID
+     * @var int
+     */
+    public static $ERROR_CODE_BAD_CONTACT_ID = 704;
+    
+    /**
      * Error code for when a user tries to delete a tag that is not their own
      * @var int
      */
-    public static $ERROR_NOT_TAG_OWNER = 704;
+    public static $ERROR_NOT_TAG_OWNER = 705;
+    
+    /**
+     * Error code for when a user tries to edit an addressbook that is not theirs
+     * @var int
+     */
+    public static $ERROR_NOT_ADDRESSBOOK_OWNER = 706;
     
     /**
      * Boolean representing whether or not the calling page should cease requests

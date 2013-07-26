@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -93,7 +93,12 @@ class QuickFormRendererWithSlides extends MoodleQuickForm_Renderer {
      */
     public function __construct() {
         parent::MoodleQuickForm_Renderer();
-        $this->_elementTemplates['nolabel'] = "\n\t\t".'<div class="fitem {advanced}">{element}</div>';
+        $this->_elementTemplates['nolabel'] = "\n\t\t".
+        '<div class="fitem {advanced}<!-- BEGIN required --> required<!-- END required --><!-- BEGIN error --> error<!-- END error --> fitem_{type}">
+            <!-- BEGIN error --><span class="error">{error}</span><br /><!-- END error -->
+            {element}
+        </div>';
+
     }
 
     /**

@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,13 +21,13 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2013052301
  * @since 2011062101
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStringHelper.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtRecipient.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtPhoneNumber.php');
 
@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtPhoneNumber.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2013052301
  * @since 2011061501
  */
 class MoodletxtBiteSizedUser extends MoodletxtRecipient {
@@ -179,13 +179,13 @@ class MoodletxtBiteSizedUser extends MoodletxtRecipient {
     /**
      * Returns the recipients full name, formatted for screen display
      * @return string Recipient's full name, display formatted
-     * @version 2012032801
+     * @version 2013052301
      * @since 2012031401
      */
     public function getFullNameForDisplay($linkifyUsername = false) {
         $userId = ($linkifyUsername) ? $this->getId() : 0;
         
-        return StringHelper::formatNameForDisplay(
+        return MoodletxtStringHelper::formatNameForDisplay(
                 $this->getFirstName(), $this->getLastName(), $this->getUsername(), null, $userId);
     }    
     

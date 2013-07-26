@@ -14,7 +14,7 @@
  * @author A J Marston <http://www.tonymarston.net>
  * @copyright 2003-2009 by A J Marston <http://www.tonymarston.net>
  */
-class Encryption {
+class MoodletxtEncryption {
 
     private $scramble1;     // 1st string of ASCII characters
     private $scramble2;     // 2nd string of ASCII characters

@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,15 +21,15 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052801
+ * @version 2013052301
  * @since 2010090101
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
 require_once($CFG->dirroot . '/blocks/moodletxt/connect/xml/MoodletxtXMLConstants.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/lib/Encryption.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/lib/MoodletxtEncryption.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStringHelper.php');
 
 require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtOutboundMessage.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtRecipient.php');
@@ -43,7 +43,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/data/TxttoolsAccount.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052801
+ * @version 2013052301
  * @since 2010090101
  */
 class MoodletxtXMLBuilder {
@@ -74,7 +74,7 @@ class MoodletxtXMLBuilder {
     
     /**
      * Holds an Encryption class for decoding account passwords
-     * @var Encryption
+     * @var MoodletxtEncryption
      */
     private $encrypter;
 
@@ -88,12 +88,12 @@ class MoodletxtXMLBuilder {
     
     /**
      * Constructor - sets up builder options
-     * @version 2011041201
+     * @version 2013052301
      * @since 2010090101
      */
     function __construct() {
 
-        $this->encrypter = new Encryption();
+        $this->encrypter = new MoodletxtEncryption();
         self::$MAX_BLOCKS_PER_REQUEST = MoodletxtXMLConstants::$MESSAGES_PER_BATCH;
 
     }
@@ -249,7 +249,7 @@ class MoodletxtXMLBuilder {
         foreach ($messageRecipients as $recipientKey => $recipient) {
 
             $messageText = trim(stripslashes($message->getMessageText()));
-            $messageText = StringHelper::mergeTagsIntoMessageText($messageText, $recipient);
+            $messageText = MoodletxtStringHelper::mergeTagsIntoMessageText($messageText, $recipient);
 
             // Chunk message text into blocks of 160 chars
             $messagechunks = str_split($messageText, 160);

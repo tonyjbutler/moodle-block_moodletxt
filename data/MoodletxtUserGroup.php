@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011102501
+ * @version 2013052101
  * @since 2011102501
  */
 
@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtBiteSizedUser.php'
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011102501
+ * @version 2013052101
  * @since 2011102501
  */
 class MoodletxtUserGroup {
@@ -93,11 +93,13 @@ class MoodletxtUserGroup {
     /**
      * Sets the database ID of this user group
      * @param int $id User group ID
-     * @version 2011102501
+     * @version 2013052101
      * @since 2011102501
      */
     public function setId($id) {
-        if (is_int($id) && $id > 0)
+        $id = (int) $id;
+        
+        if ($id > 0)
             $this->id = $id;
     }
 

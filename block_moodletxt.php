@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042301
+ * @version 2013053101
  * @since 2010081801
  */
 
@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/events/MoodletxtCronHandler.php'
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042301
+ * @version 2013053101
  * @since 2010081801
  */
 class block_moodletxt extends block_list {
@@ -73,7 +73,7 @@ class block_moodletxt extends block_list {
      * @global Object $CFG Moodle config object
      * @global Object $USER Moodle user object
      * @return string Block content
-     * @version 2012042301
+     * @version 2012071701
      * @since 2010081801
      */
     public function get_content() {
@@ -137,9 +137,9 @@ class block_moodletxt extends block_list {
             array_push($this->content->items, html_writer::tag('a', get_string('blocklinksent', 'block_moodletxt'), array('href' => $CFG->wwwroot . '/blocks/moodletxt/sent.php?course=' . $this->page->course->id . '&instance=' . $this->instance->id)));
             array_push($this->content->icons, $output->render($icon));
             
-//            $icon = new moodletxt_icon(moodletxt_icon::$ICON_ADDRESSBOOK, get_string('altaddressbook', 'block_moodletxt'), array('title' => get_string('imgtitleaddressbook', 'block_moodletxt')));
-//            array_push($this->content->items, html_writer::tag('a', get_string('blocklinkaddressbook', 'block_moodletxt'), array('href' => $CFG->wwwroot . '/blocks/moodletxt/addressbooks.php?course=' . $this->page->course->id . '&instance=' . $this->instance->id)));
-//            array_push($this->content->icons, $output->render($icon));
+            $icon = new moodletxt_icon(moodletxt_icon::$ICON_ADDRESSBOOK, get_string('altaddressbook', 'block_moodletxt'), array('title' => get_string('imgtitleaddressbook', 'block_moodletxt')));
+            array_push($this->content->items, html_writer::tag('a', get_string('blocklinkaddressbook', 'block_moodletxt'), array('href' => $CFG->wwwroot . '/blocks/moodletxt/addressbooks.php?course=' . $this->page->course->id . '&instance=' . $this->instance->id)));
+            array_push($this->content->icons, $output->render($icon));
             
         }
 
@@ -270,13 +270,22 @@ class block_moodletxt extends block_list {
      * automatic fetching of data from txttools
      * and any necessary database cleanup.
      * @return boolean Success
-     * @version 2012041701
+     * @version 2013053101
      * @since 2010081801
      */
     public function cron() {
 
-        $cronhandler = new MoodletxtCronHandler();
-        return $cronhandler->doCron();
+        try {
+        
+            $cronhandler = new MoodletxtCronHandler();
+            return $cronhandler->doCron();
+            
+        } catch (Exception $ex) {
+            error_log("Fatal error when processing MoodleTxt cron job:\n" . 
+                    $ex->getMessage() . "\n" . $ex->getTraceAsString());
+            
+            return false;
+        }
 
     }
 

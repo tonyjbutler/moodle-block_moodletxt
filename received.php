@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052901
+ * @version 2013070201
  * @since 2011080501
  */
 
@@ -30,9 +30,10 @@ require_once($CFG->dirroot . '/blocks/moodletxt/connect/MoodletxtOutboundControl
 require_once($CFG->dirroot . '/blocks/moodletxt/inbound/MoodletxtInboundFilterManager.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsReceivedMessageDAO.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/dao/MoodletxtMoodleUserDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/forms/renderers/InlineFormRenderer.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/forms/MoodletxtInboxControlForm.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStringHelper.php');
 
 $courseId   = required_param('course',   PARAM_INT);
 $instanceId = required_param('instance', PARAM_INT);
@@ -40,13 +41,21 @@ $update     = optional_param('update', 0, PARAM_INT);
 $download   = optional_param('download', '', PARAM_ALPHA);
 
 require_login($courseId, false);
-$blockcontext = get_context_instance(CONTEXT_BLOCK, $instanceId);
+$blockcontext = context_block::instance($instanceId);
 require_capability('block/moodletxt:receivemessages', $blockcontext, $USER->id);
 
 // OK, so you're legit. Let's load DAOs
 $txttoolsAccountDAO   = new TxttoolsAccountDAO();
 $receivedMessagesDAO  = new TxttoolsReceivedMessageDAO();
 $inboundFilterManager = new MoodletxtInboundFilterManager();
+$userDAO              = new MoodletxtMoodleUserDAO();
+
+// Get user's inbox preferences
+$globalSourceConfig = get_config('moodletxt', 'Show_Inbound_Numbers');
+$userConfig = $userDAO->getUserConfig($USER->id);
+
+$showInboundNumbers = ($userConfig->getUserConfig('hideSources') == '0' && $globalSourceConfig == '1');
+
 
 // Get tags and counts for user
 $tagList = $receivedMessagesDAO->getAllTagsForUser($USER->id);
@@ -77,7 +86,7 @@ if ($update == 1 || get_config('moodletxt', 'Get_Inbound_On_View') == '1') {
 
     } catch (MoodletxtRemoteProcessingException $ex) {
         
-        $fetchErrors[$ex->getCode()] = StringHelper::getLanguageStringForRemoteProcessingException($ex);
+        $fetchErrors[$ex->getCode()] = MoodletxtStringHelper::getLanguageStringForRemoteProcessingException($ex);
         
     }
 }
@@ -122,17 +131,27 @@ $output = $PAGE->get_renderer('block_moodletxt');
 /*
  * Inline form for message controls
  */
-$userList = get_users_by_capability(get_context_instance(CONTEXT_SYSTEM), 'block/moodletxt:receivemessages');
+$userList = array_merge(
+    get_users_by_capability(context_system::instance(), 'block/moodletxt:receivemessages'),
+    get_users_by_capability(context_course::instance($courseId), 'block/moodletxt:receivemessages')
+);
 $userArray = array(0 => '');
 
-foreach($userList  as $thisUser)
-    $userArray[$thisUser->id] = StringHelper::formatNameForDisplay($thisUser->firstname, $thisUser->lastname, $thisUser->username);
+foreach($userList as $thisUser) {
+    
+    // Don't add the current user to the destination list
+    if ($thisUser->id == $USER->id)
+        continue;
+    
+    $userArray[$thisUser->id] = MoodletxtStringHelper::formatNameForDisplay($thisUser->firstname, $thisUser->lastname, $thisUser->username);
+    
+}
 
 $GLOBALS['_HTML_QuickForm_default_renderer'] = new InlineFormRenderer();
 $customData = array(
     'userlist' => $userArray
 );
-$inboxForm = new MoodletxtInboundControlForm(null, $customData, 'post', '', array('class' => 'boxaligncenter boxwidthwide'));
+$inboxForm = new MoodletxtInboundControlForm(null, $customData, 'post', '', array('class' => 'mdltxt_left'));
 
 
 /*
@@ -140,16 +159,14 @@ $inboxForm = new MoodletxtInboundControlForm(null, $customData, 'post', '', arra
  */
 $table = new flexible_table('blocks-moodletxt-inboxmessages');
 $table->define_baseurl($CFG->wwwroot . '/blocks/moodletxt/received.php?course=' . $courseId . '&instance=' . $instanceId); // Required in 2.2 for export
-$table->set_attribute('id', 'receivedMessagesList');
-$table->set_attribute('class', 'generaltable generalbox boxaligncenter boxwidthwide mtxtCentredCells cleared');
+$table->set_attribute('id', 'mdltxtReceivedMessagesList');
+$table->set_attribute('class', 'generaltable generalbox boxaligncenter boxwidthwide mtxtCentredCells');
 $table->collapsible(true);
 
 if ($download != '')
     $table->is_downloading($download, get_string('exportsheetinbox', 'block_moodletxt'), get_string('exporttitleinbox', 'block_moodletxt'));
 
 $table->is_downloadable(true);
-
-$showInboundNumbers = true;
 
 // Build table structure based on download status and user options
 $tablecolumns = array();
@@ -189,19 +206,13 @@ if (! $table->is_downloading()) {
 $table->define_columns($tablecolumns);
 $table->define_headers($tableheaders);
 
-$table->sortable(true, 'timereceived', 'DESC');
+$table->sortable(true, 'timereceived', SORT_DESC);
 $table->no_sorting('checkbox');
 $table->no_sorting('messagetext');
 $table->no_sorting('options');
 $table->no_sorting('tags');
 
-$table->column_class('checkbox',     'mdltxt_columnline');
-$table->column_class('ticket',       'mdltxt_columnline');
-$table->column_class('messagetext',  'mdltxt_columnline');
-$table->column_class('source',       'mdltxt_columnline');
-$table->column_class('sourcename',   'mdltxt_columnline');
-$table->column_class('timereceived', 'mdltxt_columnline');
-$table->column_class('tags', 'mdltxt_columnline tagDrop');
+$table->column_class('tags', 'tagDrop');
 
 $table->show_download_buttons_at(array(TABLE_P_BOTTOM));
 
@@ -229,28 +240,28 @@ if (! $table->is_downloading()) {
             $maxCount = $tag->getTagCount();
         
         $addTagListItems .= $output->render(new moodletxt_message_tag_link(
-                $tag->getName(), StringHelper::convertToValidCSSIdentifier($tag->getName()),
+                $tag->getName(), MoodletxtStringHelper::convertToValidCSSIdentifier($tag->getName()),
                 100, $tag->getColourCode()));
         
     }
     
-    // @todo Make these into widgets
-    $tagListScroller = html_writer::tag('div', $addTagListItems, array('id' => 'tagListScroller'));
+    // @TODO Make these into widgets
+    $tagListScroller = html_writer::tag('div', $addTagListItems, array('id' => 'mdltxtTagListScroller'));
     
     $inputBox = html_writer::empty_tag('input', array('type' => 'text', 'width' => '20', 'name' => 'trayNewTag'));
     $newTagContent = get_string('labelnewtag', 'block_moodletxt') . $inputBox .$output->render(
-            new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddtag', 'block_moodletxt'), array('class' => 'addTagButton')));
-    $newTagDiv = html_writer::tag('div', $newTagContent, array('id' => 'newTagForm'));
+            new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddtag', 'block_moodletxt'), array('class' => 'mdltxtAddTagButton')));
+    $newTagDiv = html_writer::tag('div', $newTagContent, array('id' => 'mdltxtNewTagForm'));
     
-    echo(html_writer::tag('div', $newTagDiv . $tagListScroller, array('id' => 'tagPopup', 'class' => 'controlTray')));
+    echo(html_writer::tag('div', $newTagDiv . $tagListScroller, array('id' => 'tagPopup', 'class' => 'mdltxtControlTray')));
     
     $binImage = html_writer::empty_tag('img', array('src' => 'pix/icons/trash48.png', 'width' => 48, 'height' => 48));
-    echo(html_writer::tag('div', $binImage, array('id' => 'trashPopup', 'class' => 'controlTray')));
+    echo(html_writer::tag('div', $binImage, array('id' => 'trashPopup', 'class' => 'mdltxtControlTray')));
     
     // Insert tags into cloud
     foreach($tagList as $tag)
         $tagCloud->add_tag_widget(new moodletxt_message_tag_link(
-                $tag->getName(), StringHelper::convertToValidCSSIdentifier($tag->getName()),
+                $tag->getName(), MoodletxtStringHelper::convertToValidCSSIdentifier($tag->getName()),
                 floor(($tag->getTagCount() / $maxCount) * 100), 
                 $tag->getColourCode()));
     
@@ -278,6 +289,11 @@ if (! $table->is_downloading()) {
     
     $inboxForm->display();
     
+    // Shouldn't have to do this, but Moodle tables get outputted inside a 
+    // wrapper DIV, and classes applied to them are applied directly to
+    // the table, rather than the wrapper.
+    echo(html_writer::tag('div', null, array('class' => 'mdltxtCleared')));
+    
 }
 
 
@@ -292,6 +308,35 @@ foreach($receivedMessages as $message) {
     $deleteButton = new moodletxt_icon(moodletxt_icon::$ICON_DELETE, get_string('altdelete', 'block_moodletxt'), array('class' => 'mtxtMessageDeleteButton'));
     $replyButton = new moodletxt_icon(moodletxt_icon::$ICON_MESSAGE_REPLY, get_string('altreply', 'block_moodletxt'), array('class' => 'mtxtMessageReplyButton'));
     $tagButton = new moodletxt_icon(moodletxt_icon::$ICON_TAG, get_string('altaddtag', 'block_moodletxt'), array('class' => 'mtxtMessageTagButton'));
+
+    $messageSource = $message->getSource();
+    
+    if ($messageSource instanceof MoodletxtBiteSizedUser) {
+        
+        $replyType = 'user';
+        $replyValue = $messageSource->getId();
+        
+    } else if ($messageSource instanceof MoodletxtAddressbookRecipient) {
+        
+        $replyType = 'contact';
+        $replyValue = $messageSource->getContactId();
+        
+    } else if ($messageSource instanceof MoodletxtAdditionalRecipient) {
+        
+        $replyType = 'additional';
+        $replyValue = $messageSource->getRecipientNumber()->getPhoneNumber();
+        
+    }
+    
+    $replyUrl = new moodle_url('/blocks/moodletxt/send.php', array(
+        'course'        => $courseId, 
+        'instance'      => $instanceId,
+        'replyType'     => $replyType,
+        'replyValue'    => $replyValue
+    ));
+    
+    $replyLink = html_writer::link($replyUrl, $output->render($replyButton));
+
     
     // Build data row array
     $tableRow = array();
@@ -329,12 +374,12 @@ foreach($receivedMessages as $message) {
     array_push($tableRow, $tagString);
     
     if (! $table->is_downloading())
-        array_push($tableRow, $output->render($tagButton) . $output->render($deleteButton) . $output->render($replyButton));
+        array_push($tableRow, $output->render($tagButton) . $output->render($deleteButton) . $replyLink);
     
     // Turn tag names into CSS classes
     $classString = '';
     foreach($message->getTags() as $tag)
-        $classString .= ' ' . StringHelper::convertToValidCSSIdentifier($tag->getName());
+        $classString .= ' ' . MoodletxtStringHelper::convertToValidCSSIdentifier($tag->getName());
     
     $table->add_data($tableRow, $classString);
     

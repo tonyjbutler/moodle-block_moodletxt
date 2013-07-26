@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012041801
+ * @version 2012101001
  * @since 2011033101
  */
 
@@ -40,7 +40,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/connect/xml/MoodletxtXMLConstant
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012041801
+ * @version 2012101001
  * @since 2011033101
  */
 class MoodletxtXMLParser {
@@ -126,7 +126,7 @@ class MoodletxtXMLParser {
      * @param string $packet XML packet to parse
      * @return object[] Response objects from parsed XML
      * @throws MoodletxtRemoteProcessingException
-     * @version 2011033101
+     * @version 2012101001
      * @since 2011033101
      */
     private function parsePacket($packet) {
@@ -135,6 +135,12 @@ class MoodletxtXMLParser {
 
         $parsedObject = simplexml_load_string($packet);
 
+        if ($parsedObject === false) {
+            throw new MoodletxtRemoteProcessingException(
+                'Could not parse the incoming XML. Check your character encoding and that the XML being parsed is valid.'
+            );
+        }
+        
         try {
 
             foreach ($this->targetElements as $targetPath => $targetMethod) {
@@ -248,7 +254,7 @@ class MoodletxtXMLParser {
      * Builds InboundMessage objects from parsed XML
      * @param SimpleXMLElement $node The captured elements to build from
      * @return MoodletxtInboundMessage[] Inbound messages built from the XML
-     * @version 2012041801
+     * @version 2012101001
      * @since 2011033101
      */
     private function buildInboundMessage($node) {
@@ -277,8 +283,18 @@ class MoodletxtXMLParser {
                     new MoodletxtPhoneNumber((string) $node->{MoodletxtXMLConstants::$RESPONSE_INBOUND_DESTINATION})
                 );
                     
-                $messageObject->setDestinationAccountId($this->getTxttoolsAccountObject()->getId());
-                $messageObject->setDestinationAccountUsername($this->getTxttoolsAccountObject()->getUsername());
+                // If this field exists, we're parsing a pushed inbound message,
+                // rather than one retrieved manually
+                if (isset($node->{MoodletxtXMLConstants::$RESPONSE_INBOUND_DESTINATION_ACC})) {
+                    
+                    $messageObject->setDestinationAccountUsername(
+                        (string) $node->{MoodletxtXMLConstants::$RESPONSE_INBOUND_DESTINATION_ACC}
+                    );
+                
+                } else {
+                    $messageObject->setDestinationAccountId($this->getTxttoolsAccountObject()->getId());
+                    $messageObject->setDestinationAccountUsername($this->getTxttoolsAccountObject()->getUsername());
+                }
 
             } catch (InvalidPhoneNumberException $ex) {
                 // Invalid message content - ignore and continue

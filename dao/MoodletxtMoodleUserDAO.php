@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2013070201
  * @since 2011062001
  */
 
@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtUserConfig.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2013070201
  * @since 2011062001
  */
 class MoodletxtMoodleUserDAO {    
@@ -56,6 +56,40 @@ class MoodletxtMoodleUserDAO {
      */
     public function __construct() {
         $this->templateDAO = new MoodletxtTemplatesDAO();
+    }
+    
+    /**
+     * Returns a set of all the Moodle users registered on the system
+     * Use with caution - this could be hooooge!
+     * @global moodle_database $DB Moodle database manager
+     * @return MoodletxtBiteSizedUser[] Full user list
+     * @version 2012071201
+     * @since 2012071201
+     */
+    public function getAllUsers() {
+        
+        global $DB;
+        
+        $numberSource = get_config('moodletxt', 'Phone_Number_Source');
+        $numberField = ($numberSource == 'phone1') ? 'phone1' : 'phone2'; // Protects against bad DB values and abstracts field name
+        
+        $returnArray = array();
+        $userRecords = $DB->get_records_select('user', 'deleted = 0 AND id > 1', array(), 'lastname ASC, firstname ASC');
+        
+        foreach($userRecords as $recordId => $record) {
+            $nibbler = new MoodletxtBiteSizedUser($record->id, $record->username, $record->firstname, $record->lastname);
+            
+            try {
+                $nibbler->setRecipientNumber(new MoodletxtPhoneNumber($record->$numberField));
+            } catch (InvalidPhoneNumberException $ex) {
+                // User record will be OK without this
+            }
+            
+            array_push($returnArray, $nibbler);
+            unset($userRecords[$recordId]); // Saves on memory when converting one set of objects to another
+        }
+
+        return $returnArray;
     }
     
     /**
@@ -271,14 +305,15 @@ class MoodletxtMoodleUserDAO {
      * a new capability, which could be used with this methodology
      * @param int $courseId Course ID
      * @return MoodletxtBiteSizedUser[] Users on course
-     * @version 2012060101
+     * @version 2013070201
      * @since 2011102501
      */
     public function getUsersOnCourse($courseId) {
         
+        $numberSource = get_config('moodletxt', 'Phone_Number_Source');
         $numberField = ($numberSource == 'phone1') ? 'phone1' : 'phone2'; // Protects against bad DB values and abstracts field name
         
-        $context = get_context_instance(CONTEXT_COURSE, $courseId);
+        $context = context_course::instance($courseId);
         $userSet = get_enrolled_users($context, '', 0, 'u.id, u.username, u.firstname, u.lastname, u.' . $numberField);
         
         $userObjects = array();
@@ -344,12 +379,12 @@ class MoodletxtMoodleUserDAO {
      * @param boolean $includeUsersInResult Whether to include group members in the result
      * @return MoodletxtUserGroup[] Set of groups
      * @return MoodletxtUserGroup 
-     * @version 2011102501
+     * @version 2013070201
      * @since 2011102501
      */
     public function getUserGroupsOnCourse($courseId, $availableToUser = 0, $includeUsersInResult = false) {
         
-        $context = get_context_instance(CONTEXT_COURSE, $courseId);
+        $context = context_course::instance($courseId);
         $groupList = groups_get_all_groups($courseId, $availableToUser);
         
         $groupObjects = array();
@@ -359,7 +394,7 @@ class MoodletxtMoodleUserDAO {
         
         if ($includeUsersInResult)
             foreach($groupObjects as $group)
-                $group->setUsers($this->getUsersInGroup($groupId));
+                $group->setUsers($this->getUsersInGroup($group->getId()));
         
         return $groupObjects;
         

@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052301
+ * @version 2012082901
  * @since 2012041701
  */
 
@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/dao/MoodletxtInboundFilterDAO.ph
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052301
+ * @version 2012082901
  * @since 2012041701
  */
 class MoodletxtInboundFilterManager {
@@ -90,10 +90,14 @@ class MoodletxtInboundFilterManager {
 
     /**
      * Sets up the inbound filter set ready for use
-     * @version 2012052301
+     * @version 2012082901
      * @since 2012041701
      */
     private function setupFilters() {
+        
+        // Hello me! This is a quick note to remind you for the billionth time:
+        // usernames are compared in lower case and keywords in upper case.
+        // Can you please stop mixing those up now? It's your own convention!
         
         $accounts = $this->getTxttoolsAccountDAO()->getAllTxttoolsAccounts(false, true, false, true);
 
@@ -110,11 +114,12 @@ class MoodletxtInboundFilterManager {
             // Iterate over filters and populate arrays
             foreach ($account->getInboundFilters() as $filter) {
 
+                // Initialise array to hold destination users if it does not already exist at this point
                 if (! isset($this->filterSet[$account->getId()][$filter->getFilterType()][$filter->getOperand()]))
-                    $this->filterSet[$account->getId()][$filter->getFilterType()][$filter->getOperand()] = array();
+                    $this->filterSet[$account->getId()][$filter->getFilterType()][strtoupper($filter->getOperand())] = array();
 
                 foreach($filter->getDestinationUsers() as $destinationUser)
-                    array_push($this->filterSet[$account->getId()][$filter->getFilterType()][$filter->getOperand()], $destinationUser->getId());
+                    array_push($this->filterSet[$account->getId()][$filter->getFilterType()][strtoupper($filter->getOperand())], $destinationUser->getId());
 
             }
             
@@ -126,7 +131,7 @@ class MoodletxtInboundFilterManager {
      * Takes an array of messages and applies inbound filters to them
      * @param MoodletxtInboundMessage[] $messageSet Messages to filter
      * @return MoodletxtInboundMessage[] Filtered message set
-     * @version 2012042301
+     * @version 2012082901
      * @since 2012041701
      */
     public function filterMessages(array $messageSet) {
@@ -138,9 +143,9 @@ class MoodletxtInboundFilterManager {
                 continue;
             
             $keywordex = explode(' ', trim($message->getMessageText()));
-            $keyword = strtolower($keywordex[0]);  // Case insensitive filtering, ta
+            $keyword = strtoupper($keywordex[0]);  // Keywords are always compared in upper case
             $sourceNumber = $message->getSourceNumber()->getPhoneNumber();
-            $message->setDestinationAccountUsername(strtolower($message->getDestinationAccountUsername()));
+            $message->setDestinationAccountUsername(strtolower($message->getDestinationAccountUsername())); // Usernames are always compared lower case
 
             // Get ID/username of the txttools account this message came in on
             $accountIdent = ($message->getDestinationAccountId() > 0)

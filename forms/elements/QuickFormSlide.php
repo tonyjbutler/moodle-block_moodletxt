@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011101801
+ * @version 2012110501
  * @since 2011101801
  */
 
@@ -37,7 +37,7 @@ require_once($CFG->libdir . '/pear/HTML/QuickForm/static.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011101801
+ * @version 2012110501
  * @since 2011101801
  */
 class QuickFormSlide extends HTML_QuickForm_static {
@@ -55,7 +55,7 @@ class QuickFormSlide extends HTML_QuickForm_static {
 
     /**
      * Let's hold PEAR's hand with this handy dandy
-     * fake constructor - redirects from the PHP4 method to PH5
+     * fake constructor - redirects from the PHP4 method to PHP5
      * @version 2011101801
      * @since 2011101801
      */
@@ -66,11 +66,13 @@ class QuickFormSlide extends HTML_QuickForm_static {
     /**
      * Accepts a renderer
      * @param object An HTML_QuickForm_Renderer object
-     * @version 2011101801
+     * @param boolean Whether the element is required
+     * @param string Error message associated with the element
+     * @version 2012110501
      * @since 2011101801
      */
-    public function accept(&$renderer) {
-        $renderer->renderSlide($this);
+    public function accept(&$renderer, $required = false, $error = null) {
+        $renderer->renderSlide($this, $required, $error);
     }
 
     /**

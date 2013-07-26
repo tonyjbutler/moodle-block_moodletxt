@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -19,14 +19,12 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2013071001
  * @since 2008081212
  */
 
-require_once($CFG->dirroot . '/blocks/moodletxt/lib/LegacyEncryption.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/lib/Encryption.php');
-
-//require_once($CFG->dirroot . '/blocks/moodletxt/lib.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/lib/MoodletxtLegacyEncryption.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/lib/MoodletxtEncryption.php');
 
 function xmldb_block_moodletxt_upgrade($oldversion = 0) {
 
@@ -55,12 +53,12 @@ function xmldb_block_moodletxt_upgrade($oldversion = 0) {
         // This database field somehow snuck into the upgrade script
         // and started causing trouble, despite the fact that it's never used.
         // Ever. Not once.  So let's murder it to death!
-        $table = new XMLDBTable('block_mtxt_outbox');
-        $field = new XMLDBField('suppresunicode', XMLDB_TYPE_INTEGER, '1', 
+        $table = new xmldb_table('block_mtxt_outbox');
+        $field = new xmldb_field('suppresunicode', XMLDB_TYPE_INTEGER, '1', 
             XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null); // Spelling is correct...
 
-        if (field_exists($table, $field))
-            drop_field($table, $field);
+        if ($dbman->field_exists($table, $field))
+            $dbman->drop_field($table, $field);
 
         // Save point!
         upgrade_block_savepoint(true, 2011101101, 'moodletxt');
@@ -76,102 +74,102 @@ function xmldb_block_moodletxt_upgrade($oldversion = 0) {
      */
     if ($oldversion < 2011101201) {
         
-        $table = new XMLDBTable('block_mtxt_ab');
+        $table = new xmldb_table('block_mtxt_ab');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_ab');
+            $dbman->rename_table($table, 'block_moodletxt_ab');
 
-        $table = new XMLDBTable('block_mtxt_ab_entry');
+        $table = new xmldb_table('block_mtxt_ab_entry');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_ab_entry');
+            $dbman->rename_table($table, 'block_moodletxt_ab_entry');
 
-        $table = new XMLDBTable('block_mtxt_ab_groups');
+        $table = new xmldb_table('block_mtxt_ab_groups');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_ab_group');
+            $dbman->rename_table($table, 'block_moodletxt_ab_group');
 
-        $table = new XMLDBTable('block_mtxt_ab_users');
+        $table = new xmldb_table('block_mtxt_ab_users');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_ab_u');
+            $dbman->rename_table($table, 'block_moodletxt_ab_u');
 
-        $table = new XMLDBTable('block_mtxt_accounts');
+        $table = new xmldb_table('block_mtxt_accounts');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_accounts');
+            $dbman->rename_table($table, 'block_moodletxt_accounts');
 
-        $table = new XMLDBTable('block_mtxt_config');
+        $table = new xmldb_table('block_mtxt_config');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_config');
+            $dbman->rename_table($table, 'block_moodletxt_config');
 
-        $table = new XMLDBTable('block_mtxt_filter');
+        $table = new xmldb_table('block_mtxt_filter');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_filter');
+            $dbman->rename_table($table, 'block_moodletxt_filter');
 
-        $table = new XMLDBTable('block_mtxt_in_ab');
+        $table = new xmldb_table('block_mtxt_in_ab');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_in_ab');
+            $dbman->rename_table($table, 'block_moodletxt_in_ab');
 
-        $table = new XMLDBTable('block_mtxt_in_filter');
+        $table = new xmldb_table('block_mtxt_in_filter');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_in_fil');
+            $dbman->rename_table($table, 'block_moodletxt_in_fil');
 
-        $table = new XMLDBTable('block_mtxt_in_folders');
+        $table = new xmldb_table('block_mtxt_in_folders');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_in_fold');
+            $dbman->rename_table($table, 'block_moodletxt_in_fold');
 
-        $table = new XMLDBTable('block_mtxt_in_mess');
+        $table = new xmldb_table('block_mtxt_in_mess');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_in_mess');
+            $dbman->rename_table($table, 'block_moodletxt_in_mess');
 
-        $table = new XMLDBTable('block_mtxt_in_user');
+        $table = new xmldb_table('block_mtxt_in_user');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_in_u');
+            $dbman->rename_table($table, 'block_moodletxt_in_u');
 
-        $table = new XMLDBTable('block_mtxt_inbox');
+        $table = new xmldb_table('block_mtxt_inbox');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_inbox');
+            $dbman->rename_table($table, 'block_moodletxt_inbox');
 
-        $table = new XMLDBTable('block_mtxt_outbox');
+        $table = new xmldb_table('block_mtxt_outbox');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_outbox');
+            $dbman->rename_table($table, 'block_moodletxt_outbox');
 
-        $table = new XMLDBTable('block_mtxt_rss');
+        $table = new xmldb_table('block_mtxt_rss');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_rss');
+            $dbman->rename_table($table, 'block_moodletxt_rss');
 
-        $table = new XMLDBTable('block_mtxt_sent');
+        $table = new xmldb_table('block_mtxt_sent');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_sent');
+            $dbman->rename_table($table, 'block_moodletxt_sent');
 
-        $table = new XMLDBTable('block_mtxt_sent_ab');
+        $table = new xmldb_table('block_mtxt_sent_ab');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_sent_ab');
+            $dbman->rename_table($table, 'block_moodletxt_sent_ab');
 
-        $table = new XMLDBTable('block_mtxt_sent_user');
+        $table = new xmldb_table('block_mtxt_sent_user');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_sent_u');
+            $dbman->rename_table($table, 'block_moodletxt_sent_u');
 
-        $table = new XMLDBTable('block_mtxt_stats');
+        $table = new xmldb_table('block_mtxt_stats');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_stats');
+            $dbman->rename_table($table, 'block_moodletxt_stats');
 
-        $table = new XMLDBTable('block_mtxt_status');
+        $table = new xmldb_table('block_mtxt_status');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_status');
+            $dbman->rename_table($table, 'block_moodletxt_status');
 
-        $table = new XMLDBTable('block_mtxt_templates');
+        $table = new xmldb_table('block_mtxt_templates');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_templ');
+            $dbman->rename_table($table, 'block_moodletxt_templ');
 
-        $table = new XMLDBTable('block_mtxt_uconfig');
+        $table = new xmldb_table('block_mtxt_uconfig');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_uconfig');
+            $dbman->rename_table($table, 'block_moodletxt_uconfig');
 
         upgrade_block_savepoint(true, 2011101201, 'moodletxt');
     }
     
     if ($oldversion < 2011101202) {
         
-        $table = new XMLDBTable('block_mtxt_ab_grpmem');
+        $table = new xmldb_table('block_mtxt_ab_grpmem');
         if ($dbman->table_exists($table))
-            rename_table($table, 'block_moodletxt_ab_gmem');
+            $dbman->rename_table($table, 'block_moodletxt_ab_gmem');
         
         upgrade_block_savepoint(true, 2011101202, 'moodletxt');
     }
@@ -210,7 +208,7 @@ function xmldb_block_moodletxt_upgrade($oldversion = 0) {
 
         $passwordsAlreadyUpgraded = get_config('moodletxt', 'Passwords_Upgraded_3_0');
 
-        if ($passwordsAlreadyUpgraded !== false && $passwordsAlreadyUpgraded != 1) {
+        if ($passwordsAlreadyUpgraded === false || $passwordsAlreadyUpgraded != 1) {
 
             // Upgrade all passwords to be compatible with new
             // encryption class.  Might as well improve the
@@ -218,8 +216,8 @@ function xmldb_block_moodletxt_upgrade($oldversion = 0) {
             $oldKey = get_config('moodletxt', 'EK');
             $newKey = substr(md5(mt_rand()), 0, 10);
 
-            $legacyEncrypter = new LegacyEncryption();
-            $newEncrypter = new Encryption();
+            $legacyEncrypter = new MoodletxtLegacyEncryption();
+            $newEncrypter = new MoodletxtEncryption();
 
             $accountRecords = $DB->get_records('block_moodletxt_accounts');
 
@@ -629,9 +627,152 @@ function xmldb_block_moodletxt_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2012060101, 'moodletxt');
         
     }
+    
+    /**
+     * moodletxt 3.0 final
+     * Adding support for moodletxt+ and encrypted settings
+     */
+    if ($oldversion < 2012103001) {
+        
+        // Initialise event messaging settings if they don't exist
+        if (get_config('moodletxt', 'Event_Messaging_Account') === false)
+            set_config('Event_Messaging_Account', '0', 'moodletxt');
 
+        // Add a flag to the outbox to show whether this is an event-generated message
+        $table = new xmldb_table('block_moodletxt_outbox');
+        $field = new xmldb_field('fromevent', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, 
+                XMLDB_NOTNULL, null, '0', 'type');
+
+        if (!$dbman->field_exists($table, $field))
+            $dbman->add_field($table, $field);
+        
+        
+        // In the betas, password values coming from settings.php were not encrypted.
+        // This is now supported, so let's encrypt any existing passwords.
+        $passwordsAlreadyUpgraded = get_config('moodletxt', 'Settings_Encrypted_3_0');
+
+        if ($passwordsAlreadyUpgraded === false || $passwordsAlreadyUpgraded != 1) {
+            
+            $key           = get_config('moodletxt', 'EK');
+            $pushPassword  = get_config('moodletxt', 'Push_Password');
+            $proxyPassword = get_config('moodletxt', 'Proxy_Password');
+            
+            $encrypter = new MoodletxtEncryption();
+            
+            if ($pushPassword != '') {
+                
+                $pushPassword = $encrypter->encrypt($key, $pushPassword);
+                set_config('Push_Password', $pushPassword, 'moodletxt');
+                
+            }
+            
+            if ($proxyPassword != '') {
+                
+                $proxyPassword = $encrypter->encrypt($key, $proxyPassword);
+                set_config('Proxy_Password', $proxyPassword, 'moodletxt');
+                
+            }
+         
+            set_config('Settings_Encrypted_3_0', '1', 'moodletxt');
+            
+        }
+        
+        upgrade_block_savepoint(true, 2012103001, 'moodletxt');        
+        
+    }
+    
+    /**
+     * 3.0.1 release
+     * Patch related to running the block on MySQL 5.1 and above
+     */
+    if ($oldversion < 2012110501) {
+        
+        // Nothing to do - code patches only
+        
+        upgrade_block_savepoint(true, 2012110501, 'moodletxt');
+    }
+    
+    /**
+     * 3.0.2 release
+     * Patched permissions error on sent page, updated CSS image links,
+     * removed disabled accounts from filter management listing.
+     */
+    if ($oldversion < 2012112901) {
+        
+        // Nothing to do - code patches only
+        
+        upgrade_block_savepoint(true, 2012112901, 'moodletxt');
+    }
+    
+    /**
+     * 3.0.3 release
+     * Patches for Moodle 2.4 compatibility (table display library).
+     * Fixed error with scheduling on the send page.
+     */
+    if ($oldversion < 2013011001) {
+        
+        // Nothing to do - code patches only
+        
+        upgrade_block_savepoint(true, 2013011001, 'moodletxt');
+    }
+
+    /**
+     * 3.0.4 release
+     * Patching two Javascript issues:
+     *  -Number of accounts incorrectly calculated in control panel 
+     *   (table display library in 2.4)
+     *  -Javascript caching broken by malformed CDATA comment in lib.js
+     */
+    if ($oldversion < 2013032101) {
+        
+        // Nothing to do - code patches only
+        
+        upgrade_block_savepoint(true, 2013032101, 'moodletxt');
+    }
+    
+    /**
+     * 3.0.5-rc1 release
+     * Prepping Moodletxt for Moodlerooms distribution and updating
+     * for better compatibility with Moodle 2.5
+     * AJAX fixes on admin panel
+     * Group display fix on compose page
+     * Users can now blank names when editing addressbook contacts
+     * Fixed rare installation issue with settings.php being called before run
+     */
+    if ($oldversion < 2013061901) {
+        
+        // Nothing to do - code patches only
+        
+        upgrade_block_savepoint(true, 2013061901, 'moodletxt');
+    }
+    
+    /**
+     * 3.0.5-rc2 release
+     * Prepping Moodletxt for Moodlerooms distribution
+     * Added missing 'addinstance' capability
+     * Removed unused 'viewmoodletxtpluslogs' capability
+     * Removed deprecated get_context_* calls in Moodle 2.2 and above
+     */
+    if ($oldversion < 2013070203) {
+        
+        // Nothing to do - code patches only
+        
+        upgrade_block_savepoint(true, 2013070203, 'moodletxt');
+    }
+    
+    /**
+     * 3.0.5 release
+     * No changes since RC2
+     */
+    if ($oldversion < 2013071001) {
+        
+        // Nothing to do - code patches only
+        
+        upgrade_block_savepoint(true, 2013071001, 'moodletxt');
+    }
+    
     return true;
-
+    
 }
 
 ?>

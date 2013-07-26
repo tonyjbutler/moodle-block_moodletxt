@@ -57,6 +57,10 @@ define('HTML_QUICKFORM_ADVMULTISELECT_ERROR_INVALID_INPUT', 1);
  * The HTML_QuickForm_advmultiselect package adds an element to the
  * HTML_QuickForm package that is two select boxes next to each other
  * emulating a multi-select.
+ * 
+ * Greg's note: This element is OK for most pages, but needs numerous
+ * workarounds for the composition page. A custom compose-only version
+ * would be nice. (Currently various extensions and JS overrides are used.)
  *
  * @category  HTML
  * @package   HTML_QuickForm_advmultiselect

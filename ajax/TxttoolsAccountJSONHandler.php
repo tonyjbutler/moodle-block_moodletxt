@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042301
+ * @version 2013061801
  * @since 2011061201
  */
 
@@ -30,6 +30,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/ajax/MoodletxtAJAXException.php'
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/MoodletxtMoodleUserDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/connect/MoodletxtOutboundControllerFactory.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/lib/MoodletxtEncryption.php');
 
 /**
  * JSON handler for updating txttools accounts directly from
@@ -38,7 +39,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/connect/MoodletxtOutboundControl
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042301
+ * @version 2013061801
  * @since 2011061201
  */
 class TxttoolsAccountJSONHandler {
@@ -63,6 +64,8 @@ class TxttoolsAccountJSONHandler {
      */
     private $responseTemplate = array(
         'accountID' => 0,
+        'username' => '',
+        'description' => '',
         'creditsUsed' => 0,
         'creditsRemaining' => 0,
         'updateTimeString' => '',
@@ -114,7 +117,7 @@ class TxttoolsAccountJSONHandler {
      * @param string $json JSON to parse
      * @return string JSON response
      * @throws MoodletxtAJAXException
-     * @version 2011062701
+     * @version 2013061801
      * @since 2011061301
      */
     public function processJSON($json) {
@@ -134,40 +137,54 @@ class TxttoolsAccountJSONHandler {
         switch($decoded->mode) {
 
             case 'getAccountDetails':
-                $response = $this->getAccountDetails((int) $decoded->accountId);
+                $response = $this->getAccountDetails(
+                    clean_param($decoded->accountId, PARAM_INT)
+                );
                 break;
             
             case 'updateAccountRestrictions':
-                $response = $this->updateAccountRestrictions($decoded);
+                $response = $this->updateAccountRestrictions(
+                    clean_param($decoded->accountId, PARAM_INT),
+                    clean_param_array($decoded->allowedUsers, PARAM_INT)
+                );
+                break;
+            
+            case 'updateAccountFromUser':
+                $response = $this->updateAccountFromUser(
+                    clean_param($decoded->accountId, PARAM_INT),
+                    clean_param($decoded->description, PARAM_TEXT),
+                    clean_param($decoded->newPassword, PARAM_TEXT)
+                );
                 break;
             
             case 'updateAccountFromTxttools':
-                $response = $this->updateAccountFromTxttools((int) $decoded->accountId);
+                $response = $this->updateAccountFromTxttools(
+                    clean_param($decoded->accountId, PARAM_INT));
                 break;
             
             case 'setInboundAccess':
                 $response = $this->setAccountAccess(
-                    (int) $decoded->accountId, 
+                    clean_param($decoded->accountId, PARAM_INT),
                     self::$DIRECTION_IDENTIFIER_INBOUND,
-                    $decoded->allowInbound);
+                    clean_param($decoded->allowInbound, PARAM_BOOL));
                 break;
             
             case 'setOutboundAccess':
                 $response = $this->setAccountAccess(
-                    (int) $decoded->accountId,
+                    clean_param($decoded->accountId, PARAM_INT),
                     self::$DIRECTION_IDENTIFIER_OUTBOUND,
-                    $decoded->allowOutbound);
+                    clean_param($decoded->allowOutbound, PARAM_BOOL));
                 break;
             
             case 'toggleOutboundAccess':
                 $response = $this->toggleAccountAccess(
-                    (int) $decoded->accountId, 
+                    clean_param($decoded->accountId, PARAM_INT),
                     self::$DIRECTION_IDENTIFIER_OUTBOUND);
                 break;
             
             case 'toggleInboundAccess':
                 $response = $this->toggleAccountAccess(
-                    (int) $decoded->accountId,
+                    clean_param($decoded->accountId, PARAM_INT),
                     self::$DIRECTION_IDENTIFIER_INBOUND);
                 break;
                         
@@ -175,7 +192,7 @@ class TxttoolsAccountJSONHandler {
                 throw new MoodletxtAJAXException(
                     get_string('errorinvalidjson', 'block_moodletxt'),
                     MoodletxtAJAXException::$ERROR_CODE_BAD_JSON,
-                    null, false);
+                    null, false, $decoded->accountId);
         }
         
         return $response;
@@ -186,7 +203,7 @@ class TxttoolsAccountJSONHandler {
      * Gets full details of a txttools account
      * @param int $accountId ID of account to fetch
      * @return string JSON response
-     * @version 2011071101
+     * @version 2012101601
      * @since 2011062301
      */
     private function getAccountDetails($accountId) {
@@ -198,7 +215,7 @@ class TxttoolsAccountJSONHandler {
             throw new MoodletxtAJAXException(
                 get_string('errorinvalidaccountid', 'block_moodletxt'), 
                 MoodletxtAJAXException::$ERROR_CODE_BAD_ACCOUNT_ID,
-                null, false);
+                null, false, $accountId);
 
         return $this->buildResponse($txttoolsAccount);
         
@@ -209,7 +226,7 @@ class TxttoolsAccountJSONHandler {
      * @param int $accountId ID of account to check
      * @return string JSON response
      * @throws MoodletxtAJAXException
-     * @version 2011062701
+     * @version 2012101601
      * @since 2011061301
      */
     private function updateAccountFromTxttools($accountId) {
@@ -233,52 +250,111 @@ class TxttoolsAccountJSONHandler {
             throw new MoodletxtAJAXException(
                 get_string('errorconn' . $ex->getCode(), 'block_moodletxt'), 
                 $ex->getCode(),
-                null, true);
+                null, true, $accountId);
             
         } catch (Exception $ex) {
             throw new MoodletxtAJAXException(
                 get_string('errorconndefault', 'block_moodletxt'), 
                 $ex->getCode(),
-                null, true);
+                null, true, $accountId);
         }
     }
     
     /**
-     * Updates an acount's list of allowed users
-     * @param object $decodedJson Parsed JSON
+     * Updates some details of a ConnectTxt account
+     * based on a user's input rather than a remote call
+     * @param int $accountId ConnectTxt account ID
+     * @param string $description ConnectTxt account description
+     * @param object $decodedJson JSON request
      * @return string JSON response
-     * @version 2011062301
-     * @since 2011062301
+     * @throws MoodletxtAJAXException
+     * @version 2013061701
+     * @since 2012100801
      */
-    private function updateAccountRestrictions($decodedJson) {
+    private function updateAccountFromUser($accountId, $description, $newPassword) {
         
-        $txttoolsAccount = $this->accountDAO->getTxttoolsAccountById((int) $decodedJson->accountId);
+        $txttoolsAccount = $this->accountDAO->getTxttoolsAccountById($accountId);
         
         // Account must exist within system
         if (!is_object($txttoolsAccount))
             throw new MoodletxtAJAXException(
                 get_string('errorinvalidaccountid', 'block_moodletxt'), 
                 MoodletxtAJAXException::$ERROR_CODE_BAD_ACCOUNT_ID,
-                null, false);
+                null, false, $accountId);
+        
+        $txttoolsAccount->setDescription($description);
+        
+        // Set new encrypted password on object and attempt
+        // to connect to ConnectTxt with it
+        // (There's a method to check account validity but
+        // we might as well update info while we're at it.)
+        if ($newPassword != '') {
+            
+            $encrypter = new MoodletxtEncryption();
+            $key = get_config('moodletxt', 'EK');
+
+            $txttoolsAccount->setEncryptedPassword($encrypter->encrypt($key, $newPassword, 20));
+
+        
+            // Update from ConnectTxt server
+            try {
+                $this->connector->updateAccountInfo($txttoolsAccount);
+
+            } catch (MoodletxtRemoteProcessingException $ex) {
+                throw new MoodletxtAJAXException(
+                    get_string('errorconn' . $ex->getCode(), 'block_moodletxt'), 
+                    $ex->getCode(),
+                    null, true, $txttoolsAccount->getId());
+
+            } catch (Exception $ex) {
+                throw new MoodletxtAJAXException(
+                    get_string('errorconndefault', 'block_moodletxt'), 
+                    $ex->getCode(),
+                    null, true, $txttoolsAccount->getId());
+            }
+            
+        }
+        
+        $this->accountDAO->saveTxttoolsAccount($txttoolsAccount);
+        return $this->buildResponse($txttoolsAccount);
+        
+    }
+    
+    /**
+     * Updates an acount's list of allowed users
+     * @param int $accountId ConnectTxt account ID
+     * @param array $allowedUsers User IDs the account should be restricted to
+     * @return string JSON response
+     * @version 2013061701
+     * @since 2011062301
+     */
+    private function updateAccountRestrictions($accountId, array $allowedUsers) {
+        
+        $txttoolsAccount = $this->accountDAO->getTxttoolsAccountById($accountId);
+        
+        // Account must exist within system
+        if (!is_object($txttoolsAccount))
+            throw new MoodletxtAJAXException(
+                get_string('errorinvalidaccountid', 'block_moodletxt'), 
+                MoodletxtAJAXException::$ERROR_CODE_BAD_ACCOUNT_ID,
+                null, false, $accountId);
         
         // Easiest way of doing this, rather than checking
         // which links already exist and modifying, is to clear
         // all existing links and save the given set
         $txttoolsAccount->clearAllowedUsers();
         
-        if (is_array($decodedJson->allowedUsers)) {
-            foreach ($decodedJson->allowedUsers as $allowedUser) {
-                try {
-                    $userObj = $this->userDAO->getUserById($allowedUser);
-                    $txttoolsAccount->addAllowedUser($userObj);
-                } catch (InvalidArgumentException $ex) {
-                    // Bad user ID - ignore and continue
-                    continue;
-                }
+        foreach ($allowedUsers as $allowedUser) {
+            try {
+                $userObj = $this->userDAO->getUserById($allowedUser);
+                $txttoolsAccount->addAllowedUser($userObj);
+            } catch (InvalidArgumentException $ex) {
+                // Bad user ID - ignore and continue
+                continue;
             }
         }
         
-        $this->accountDAO->saveTxttoolsAccount($txttoolsAccount);
+        $this->accountDAO->saveTxttoolsAccount($txttoolsAccount, true);
         return $this->buildResponse($txttoolsAccount);
         
     }
@@ -290,7 +366,7 @@ class TxttoolsAccountJSONHandler {
      * @param boolean $allow Whether to allow access
      * @return string JSON response
      * @throws MoodletxtAJAXException
-     * @version 2011062701
+     * @version 2012101601
      * @since 2011061301
      */
     private function setAccountAccess($accountId, $direction = 'outbound', $allow = false) {
@@ -302,7 +378,7 @@ class TxttoolsAccountJSONHandler {
             throw new MoodletxtAJAXException(
                 get_string('errorinvalidaccountid', 'block_moodletxt'), 
                 MoodletxtAJAXException::$ERROR_CODE_BAD_ACCOUNT_ID,
-                null, false);
+                null, false, $accountId);
 
         // Update account settings within DB
         if ($direction == self::$DIRECTION_IDENTIFIER_OUTBOUND)
@@ -322,7 +398,7 @@ class TxttoolsAccountJSONHandler {
      * @param string $direction Specify inbound/outbound access to update
      * @return string JSON response
      * @throws MoodletxtAJAXException
-     * @version 2011062701
+     * @version 2012101601
      * @since 2011061301
      */
     private function toggleAccountAccess($accountId, $direction = 'outbound') {
@@ -334,7 +410,7 @@ class TxttoolsAccountJSONHandler {
             throw new MoodletxtAJAXException(
                 get_string('errorinvalidaccountid', 'block_moodletxt'), 
                 MoodletxtAJAXException::$ERROR_CODE_BAD_ACCOUNT_ID,
-                null, false);
+                null, false, $accountId);
 
         // Update account settings within DB
         if ($direction == self::$DIRECTION_IDENTIFIER_OUTBOUND)
@@ -352,7 +428,7 @@ class TxttoolsAccountJSONHandler {
      * Build JSON response structure for an updated account
      * @param TxttoolsAccount $txttoolsAccount Account to build from
      * @return string Constructed JSON
-     * @version 2012042301
+     * @version 2012100801
      * @since 2011061301
      */
     private function buildResponse(TxttoolsAccount $txttoolsAccount) {
@@ -361,6 +437,8 @@ class TxttoolsAccountJSONHandler {
         $response = $this->responseTemplate;
         
         $response['accountID'] = $txttoolsAccount->getId();
+        $response['username'] = $txttoolsAccount->getUsername();
+        $response['description'] = $txttoolsAccount->getDescription();
         $response['creditsUsed'] = $txttoolsAccount->getCreditsUsed();
         $response['creditsRemaining'] = $txttoolsAccount->getCreditsRemaining();
         $response['updateTimeString'] = $txttoolsAccount->getLastUpdateFormatted();

@@ -16,6 +16,8 @@ require_once($CFG->dirroot . '/lib/pear/HTML/QuickForm/Renderer/Tableless.php');
  * @package   moodlecore
  * @copyright Jamie Pratt <me@jamiep.org>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @version 2013010901
+ * @since 2012031701
  */
 class InlineFormRenderer extends HTML_QuickForm_Renderer_Tableless {
 
@@ -71,6 +73,12 @@ class InlineFormRenderer extends HTML_QuickForm_Renderer_Tableless {
      */
     var $_showAdvanced;
 
+    /**
+     * Initialises templates for the various element types
+     * that can be rendered by this class
+     * @version 2013010901
+     * @since 2012031701
+     */
     function __construct(){
         
         $this->_elementTemplates = array(
@@ -81,21 +89,41 @@ class InlineFormRenderer extends HTML_QuickForm_Renderer_Tableless {
     <!-- BEGIN error --><span class="error">{error}</span><!-- END error -->
     {element}
 </li>',
-
-        'fieldset'=>"\n\t\t".'
-<div class="fitem {advanced}<!-- BEGIN required --> required<!-- END required -->">
+            
+        'actionbuttons'=>"\n\t\t".'
+<div class="fitem {advanced}">
     <div class="fitemtitle">
-        <div class="fgrouplabel">
+        <div class="fstaticlabel">
             <label>{label}<!-- BEGIN required -->{req}<!-- END required -->{advancedimg} {help}</label>
         </div>
     </div>
-    <fieldset class="felement {type}<!-- BEGIN error --> error<!-- END error -->">
+    <div class="felement fstatic <!-- BEGIN error --> error<!-- END error -->">
         <!-- BEGIN error --><span class="error">{error}</span><br /><!-- END error -->
-        {element}
-    </fieldset>
-</div>',
+        {element}&nbsp;
+    </div>
+</div>',        
+
+        'fieldset'=>"\n\t\t".'
+<li>
+    <label>{label}<!-- BEGIN required -->{req}<!-- END required -->{advancedimg} {help}</label>
+    <!-- BEGIN error --><span class="error">{error}</span><br /><!-- END error -->
+    {element}
+</li>',
 
         'static'=>"\n\t\t".'
+<div class="fitem {advanced}">
+    <div class="fitemtitle">
+        <div class="fstaticlabel">
+            <label>{label}<!-- BEGIN required -->{req}<!-- END required -->{advancedimg} {help}</label>
+        </div>
+    </div>
+    <div class="felement fstatic <!-- BEGIN error --> error<!-- END error -->">
+        <!-- BEGIN error --><span class="error">{error}</span><br /><!-- END error -->
+        {element}&nbsp;
+    </div>
+</div>',
+
+        'submit'=>"\n\t\t".'
 <div class="fitem {advanced}">
     <div class="fitemtitle">
         <div class="fstaticlabel">

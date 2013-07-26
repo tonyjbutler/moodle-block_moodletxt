@@ -10,7 +10,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,11 +21,38 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012041001
+ * @version 2013051601
  * @since 2011041701
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
+
+// Not really supposed to do this kind of thing here, but I need the account list
+require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/settings/admin_setting_password_unmask_encrypted.php');
+
+// Grab current ConnectTxt accounts from database, fo sho
+$accountDAO = new TxttoolsAccountDAO();
+$accountSet = array();
+
+try {
+    $accountSet = $accountDAO->getAllTxttoolsAccounts(false, false, true, false); // Check outbound is active
+    
+} catch (dml_read_exception $ex) {
+    /* We're not really supposed to have database code in the settings file
+       but we need it here to get a list of accounts. Valid use case, certainly.
+       However, if the block is in place at Moodle install time, this file
+       may be run before the database tables are in place, so we need this
+       try-catch to stop the installation from failing! */
+    
+    // Do nothing - fail silently and allow installation to continue
+}
+
+$accountList = array(0 => get_string('adminselecteventsdisabled', 'block_moodletxt'));
+
+foreach($accountSet as $account)
+    $accountList[$account->getId()] = $account->getUsername() . ' (' . $account->getDescription() . ')';
+
 
 // I would define this as a constant. However, Moodle
 // tries to define the exact same constant later on in
@@ -81,7 +108,7 @@ $settings->add(new admin_setting_configtext(
             ''
         ));
 
-$settings->add(new admin_setting_configpasswordunmask(
+$settings->add(new admin_setting_password_unmask_encrypted(
             'moodletxt/Push_Password',
             get_string('adminlabelsetxmlpass', 'block_moodletxt'),
             get_string('admindescsetxmlpass', 'block_moodletxt'),
@@ -104,6 +131,14 @@ $settings->add(new admin_setting_configcheckbox(
             get_string('adminlabeldisablewarn', 'block_moodletxt'),
             get_string('admindescdisablewarn', 'block_moodletxt'),
             '1'
+        ));
+
+$settings->add(new admin_setting_configselect(
+            'moodletxt/Event_Messaging_Account',
+            get_string('adminlabeleventaccount', 'block_moodletxt'),
+            get_string('admindesceventaccount', 'block_moodletxt'),
+            0,
+            $accountList
         ));
 
 
@@ -185,7 +220,7 @@ $settings->add(new admin_setting_configtext(
             ''
         ));
 
-$settings->add(new admin_setting_configpasswordunmask(
+$settings->add(new admin_setting_password_unmask_encrypted(
             'moodletxt/Proxy_Password',
             get_string('adminlabelproxypassword', 'block_moodletxt'),
             get_string('admindescproxypassword', 'block_moodletxt'),

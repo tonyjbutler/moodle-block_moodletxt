@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -60,7 +60,7 @@ class QuickFormSelectDynamic extends HTML_QuickForm_select {
     
     /**
      * Let's hold PEAR's hand with this handy dandy
-     * fake constructor - redirects from the PHP4 method to PH5
+     * fake constructor - redirects from the PHP4 method to PHP5
      * @param string $elementName Element name
      * @param string $elementLabel Text for element's <label> tag
      * @param array $options Initially selected options within the list
@@ -78,8 +78,8 @@ class QuickFormSelectDynamic extends HTML_QuickForm_select {
      * when it first loaded, as these select boxes have their
      * contents loaded via AJAX
      * @param array $submitValues Data submitted to form
-     * @param boolean $assoc
-     * @return type 
+     * @param boolean $assoc Whether to return the value(s) as associative array
+     * @return mixed The selected and valid value(s) of the element
      * @version 2011071401
      * @since 2011071401
      */

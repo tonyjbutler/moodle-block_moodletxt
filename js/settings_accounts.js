@@ -7,7 +7,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -18,7 +18,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011062701
+ * @version 2013052301
  * @since 2011061001
  */
 
@@ -39,6 +39,7 @@ var $updateAllButton;
 var $progressBar;
 var $progressBarTextValue;
 var $accountsTable;
+var $accountEditDialog;
 var $accountRestrictionsDialog;
 var $userSearcher;
 var $allowedUserList;
@@ -52,6 +53,7 @@ var $IMAGE_OUTBOUND;
 var $IMAGE_INBOUND;
 var $IMAGE_ACCESS_DENIED;
 var $IMAGE_EDIT_ACCESS;
+var $IMAGE_ACCOUNT_EDIT;
 
 /**
  * Receives account IDs from PHP
@@ -69,7 +71,7 @@ function receiveAccountIds(YUI, accountIds) {
 /**
  * Sets up the images that are used in
  * page processing/animation
- * @version 2011062701
+ * @version 2012101601
  * @since 2011061001
  */
 function setUpImages() {
@@ -80,14 +82,16 @@ function setUpImages() {
         .attr('height', '16')
         .attr('alt', M.str.block_moodletxt.adminaccountupdatefailed)
         .attr('title', M.str.block_moodletxt.adminaccountupdatefailed)
-        .css('float', 'left');
+        .css('float', 'left')
+        .addClass('warningIcon');
 
     $IMAGE_LOADING = $('<img />')
         .attr('src', 'pix/icons/ajax-loader.gif')
         .attr('width', '16')
         .attr('height', '16')
         .attr('alt', M.str.block_moodletxt.adminaccountfragloading)
-        .attr('title', M.str.block_moodletxt.adminaccountfragloading);
+        .attr('title', M.str.block_moodletxt.adminaccountfragloading)
+        .addClass('loadingIcon');
 
     $IMAGE_UPDATE_SUCCESSFUL = $('<img />')
         .attr('src', 'pix/icons/ok.png')
@@ -95,7 +99,8 @@ function setUpImages() {
         .attr('height', '16')
         .attr('alt', M.str.block_moodletxt.adminaccountupdatesuccess)
         .attr('title', M.str.block_moodletxt.adminaccountupdatesuccess)
-        .css('float', 'left');
+        .css('float', 'left')
+        .addClass('successIcon');
 
     $IMAGE_OUTBOUND = $('<img />')
         .attr('src', 'pix/icons/allow_outbound.png')
@@ -103,7 +108,7 @@ function setUpImages() {
         .attr('height', '16')
         .attr('alt', M.str.block_moodletxt.altaccessoutbound)
         .attr('title', M.str.block_moodletxt.altaccessoutbound)
-        .addClass('clickableIcon')
+        .addClass('mdltxtClickableIcon')
         .click(toggleOutboundAccess);
         
     $IMAGE_INBOUND = $('<img />')
@@ -112,7 +117,7 @@ function setUpImages() {
         .attr('height', '16')
         .attr('alt', M.str.block_moodletxt.altaccessinbound)
         .attr('title', M.str.block_moodletxt.altaccessinbound)
-        .addClass('clickableIcon')
+        .addClass('mdltxtClickableIcon')
         .click(toggleInboundAccess);
 
     $IMAGE_ACCESS_DENIED = $('<img />')
@@ -121,7 +126,7 @@ function setUpImages() {
         .attr('height', '16')
         .attr('alt', M.str.block_moodletxt.altaccessdenied)
         .attr('title', M.str.block_moodletxt.altaccessdenied)
-        .addClass('clickableIcon');
+        .addClass('mdltxtClickableIcon');
 
     $IMAGE_ACCESS_EDIT = $('<img />')
         .attr('src', 'pix/icons/access_edit.png')
@@ -129,31 +134,44 @@ function setUpImages() {
         .attr('height', '16')
         .attr('alt', M.str.block_moodletxt.altaccessedit)
         .attr('title', M.str.block_moodletxt.altaccessedit)
-        .addClass('clickableIcon');
+        .addClass('mdltxtClickableIcon');
+        
+    $IMAGE_ACCOUNT_EDIT = $('<img />')
+        .attr('src', 'pix/icons/edit.png')
+        .attr('width', '16')
+        .attr('height', '16')
+        .attr('alt', M.str.block_moodletxt.altaccountedit)
+        .attr('title', M.str.block_moodletxt.altaccountedit)
+        .addClass('mdltxtClickableIcon');
         
 }
 
 /**
- * Loads up user restriction data when requested
- * @param event Javascript Event object
- * @version 2011062701
- * @since 2011062101
+ * Loads the given type of editing dialog for 
+ * a selected account from the list
+ * @param event JavaScript event object
+ * @param loadHandler Handler function to call when data has been retrieved
+ * @version 2012101601
+ * @since 2012100501
  */
-function loadUserRestrictionData(event) {
+function loadAccountDialog(event, loadHandler) {
     
-    var $parentRow = $(this).parent().parent();
-    var rowNumber = $parentRow.parent().children().index($parentRow) + 1;
-    var accountId = accountArray[rowNumber];
+    var $icon = $(event.target);
+    var $parentRow = $icon.parent().parent();
+    var rowNumber  = $parentRow.parent().children().index($parentRow) + 1;
+    var accountId  = accountArray[rowNumber];
     
     // If this account is already being loaded, wait
-    if (activeRequests[accountId] != null) {
+    if (typeof(activeRequests[accountId]) !== 'undefined') {
         alert(M.str.block_moodletxt.erroroperationinprogress);
-        return;
+        return;   
     }
 
     // Chuck in loading image
-    $(this).parent().prepend($IMAGE_LOADING.clone().css('float', 'left'));
-    $(this).remove();
+    $icon.parent().children('img').filter(':first').after(
+        $IMAGE_LOADING.clone().css('float', 'left')
+    );
+    $icon.remove();
 
     // Requests are asynchronous, so store details
     // of the active request.
@@ -168,7 +186,7 @@ function loadUserRestrictionData(event) {
     // Make request and update accounts
     $.getJSON('settings_accounts_update.php',
         {json : requestJSON},
-        handleLoadedUserRestrictionData
+        function(json) { loadHandler(json); }
     );    
     
 }
@@ -176,13 +194,14 @@ function loadUserRestrictionData(event) {
 /**
  * Handles initial form data load for user restrictions
  * @param json JSON response containing user data
- * @version 2011062701
+ * @version 2013052301
  * @since 2011062101
  */
 function handleLoadedUserRestrictionData(json) {
 
     // If this transaction is not recognised, discard
-    if (! json.accountID || activeRequests[json.accountID] == null) {
+    if (! json.accountID || 
+            typeof(activeRequests[json.accountID]) === 'undefined') {
         return;
     }
 
@@ -191,16 +210,18 @@ function handleLoadedUserRestrictionData(json) {
     var $accountRow = $accountsTable.find('tr:nth-child(' + tableRow + ')');
     var $outboundCell = $accountRow.find('td:nth-child(4)');
    
-    $outboundCell.children('img:first').remove();
-    $outboundCell.prepend($IMAGE_ACCESS_EDIT.clone(true).css('float', 'left').click(loadUserRestrictionData));
+    $outboundCell.children('img.loadingIcon').remove();
+    $outboundCell.prepend($IMAGE_ACCESS_EDIT.clone(true).css('float', 'left').click(function(event) { 
+        loadAccountDialog(event, handleLoadedUserRestrictionData);
+    }));
 
-    activeRequests[json.accountID] = null;  //I'd use splice(), but it re-indexes the array
+    delete activeRequests[json.accountID];  
 
     // Populate form
 
     $('input[name=accountSelector]').val('');
     $('input[name=currentTxttoolsAccount]').val(json.accountID);
-    $allowedUserList.children().remove();
+    $accountRestrictionsDialog.find('p.error').remove();
     
     for(var x in json.allowedUsers) {
         $allowedUserList.addOption(x, nameDisplayString(
@@ -212,6 +233,10 @@ function handleLoadedUserRestrictionData(json) {
    
     // Open form dialog up
     $accountRestrictionsDialog.dialog({
+        close       :   function(event, ui) {
+            $('input[name=accountSelector]').val('');
+            $('select[name=restrictedUsers\\[\\]]').children().remove();
+        },
         minWidth    :   500,
         minHeight   :   350,
         modal       :   true
@@ -223,16 +248,19 @@ function handleLoadedUserRestrictionData(json) {
  * When the user clicks to save restriction data,
  * this function handles the AJAX call to make the save
  * @param event Javascript Event object
- * @version 2011062701
+ * @version 2012100901
  * @since 2011062401
  */
 function updateUserRestrictionData(event) {
     event.preventDefault();
 
     // Lock down form and prepare data
+    $accountRestrictionsDialog.find('p.error').remove();
     $(this).attr('disabled', 'disabled');
     $(this).parent().append($IMAGE_LOADING.clone());
     $allowedUserList.selectAll();
+    
+    var $saveUserRestrictionsButton = $(this);
     
     // Run update
     $.getJSON(
@@ -248,13 +276,122 @@ function updateUserRestrictionData(event) {
             $saveUserRestrictionsButton.parent().children('img:last').remove();
             $saveUserRestrictionsButton.removeAttr('disabled');
             if (json.hasError) {
-                
+                $accountRestrictionsDialog.append(
+                    $('<p />').addClass('error').text(json.errorMessage)
+                );
             } else {
+                $allowedUserList.children().remove();
                 $accountRestrictionsDialog.dialog('close');
             }
                 
         }
     );
+}
+
+/**
+ * Handler function, called when the user
+ * is editing basic details of an account.
+ * Opens the editing dialog and populates the form.
+ * @param json Account info from database
+ * @version 2013052301
+ * @since 2012100501
+ */
+function handleLoadedUserEditData(json) {
+    
+    // If this transaction is not recognised, discard
+    if (! json.accountID || 
+            typeof(activeRequests[json.accountID]) === 'undefined') {
+        return;
+    }
+
+    // Grab table references
+    var tableRow = activeRequests[json.accountID];
+    var $accountRow = $accountsTable.find('tr:nth-child(' + tableRow + ')');
+    var $accountCell = $accountRow.find('td:nth-child(1)');
+   
+    // Reset icons to as they were before the load
+    $accountCell.children('img').filter(':last').after(
+        $IMAGE_ACCOUNT_EDIT.clone(true).css('float', 'left').click(function(event) { 
+            loadAccountDialog(event, handleLoadedUserEditData);
+        })
+    );
+    $accountCell.children('img.loadingIcon').remove();
+
+    delete activeRequests[json.accountID];  
+
+    // Populate form
+
+    $('input[name=editedTxttoolsAccount]').val(json.accountID);
+    $('input[name=accountDescription]').val(json.description);
+    $accountEditDialog.find('div.fstatic').filter(':first').text(json.username);
+    $accountEditDialog.find('p.error').remove();
+    $accountEditDialog.data('accountTableRow', $accountRow);
+
+    // Open form dialog up
+    $accountEditDialog.dialog({
+        close       :   function(event, ui) {
+            $('input[name=accountDescription]').val('');
+            $('input[name=accountPassword]').val('');
+        },
+        minWidth    :   500,
+        minHeight   :   350,
+        modal       :   true
+    });
+
+}
+
+/**
+ * Saves edited account data back
+ * to the database
+ * @param event Submit button click event
+ * @version 2013052301
+ * @since 2012100801
+ */
+function updateAccountData(event) {
+    
+    event.preventDefault();
+
+    // Lock down form and prepare data
+    $accountEditDialog.find('p.error').remove();
+    $(this).attr('disabled', 'disabled');
+    $(this).parent().append($IMAGE_LOADING.clone());
+    
+    var $saveAccountButton = $(this);
+    var params = {
+        mode            :   'updateAccountFromUser',
+        accountId       :   $('input[name=editedTxttoolsAccount]').val(),
+        description     :   $('input[name=accountDescription]').val()
+    };
+    
+    if ($('input[name=accountPassword]').val().length) {
+        params.newPassword = $('input[name=accountPassword]').val();
+    }
+    
+    // Run update
+    $.getJSON(
+        'settings_accounts_update.php',
+        {
+            json    :   $.toJSON(params)
+        },
+        function(json) {
+            $saveAccountButton.parent().children('img:last').remove();
+            $saveAccountButton.removeAttr('disabled');
+            if (json.hasError) {
+                $accountEditDialog.append(
+                    $('<p />').addClass('error').text(json.errorMessage)
+                );
+            } else {
+                $accountEditDialog.data('accountTableRow').find('td:nth-child(2)')
+                        .text($('input[name=accountDescription]').val());
+                
+                $('input[name=editedTxttoolsAccount]').val(0);
+                $('input[name=accountDescription]').val('');
+                $('input[name=accountPassword]').val('');
+                $accountEditDialog.dialog('close');
+            }
+        }
+    );
+        
 }
 
 /**
@@ -286,7 +423,7 @@ function toggleInboundAccess(event) {
  * @param obj The element clicked on
  * @param mode Whether to affect inbound/outbound
  * @see toggleOutboundAccess, toggleInboundAccess
- * @version 2011061301
+ * @version 2012101601
  * @since 2011061001
  */
 function toggleAccountAccess(event, obj, mode) {
@@ -296,7 +433,7 @@ function toggleAccountAccess(event, obj, mode) {
     var accountId = accountArray[rowNumber];
     
     // If this account is already being updated, wait
-    if (activeRequests[accountId] != null) {
+    if (typeof(activeRequests[accountId]) !== 'undefined') {
         alert(M.str.block_moodletxt.erroroperationinprogress);
         return;
     }
@@ -327,13 +464,13 @@ function toggleAccountAccess(event, obj, mode) {
  * for updating account access
  * @param json JSON response
  * @see toggleAccountAccess
- * @version 2011061601
+ * @version 2012101601
  * @since 2011061001
  */
 function handleAccountAccess(json) {
 
     // If this transaction is not recognised, discard
-    if (! json.accountID || activeRequests[json.accountID] == null) {
+    if (! json.accountID || typeof(activeRequests[json.accountID]) === 'undefined') {
         return;
     }
 
@@ -361,7 +498,7 @@ function handleAccountAccess(json) {
         $inboundCell.append($IMAGE_ACCESS_DENIED.clone(true).click(toggleInboundAccess));
     }
     
-    activeRequests[json.accountID] = null;  //I'd use splice(), but it re-indexes the array
+    delete activeRequests[json.accountID];
 
 }
 
@@ -369,7 +506,7 @@ function handleAccountAccess(json) {
  * Makes a series of calls to the txttools server
  * to update account credit information
  * @param event Button click event
- * @version 2011061301
+ * @version 2012121201
  * @since 2011061001
  */
 function updateAllAccounts(event) {
@@ -387,11 +524,22 @@ function updateAllAccounts(event) {
     // Set up progress bar
     $progressBar.slideDown().progressbar({value : 0});
     $progressBarTextValue.text(M.str.block_moodletxt.adminaccountprocessedfrag + ': 0/' + numberOfAccounts)
-
     numberProcessed = 0;
+    
+    var $tableRowSet = [];
+    var tableFudge = 0;
+
+    // In Moodle 2.4 and above, tables are rendered with <thead> tags
+    if ($accountsTable.children('thead').length > 0) {
+        $tableRowSet = $accountsTable.find('tbody tr');
+        tableFudge = 1;
+    } else {
+        $tableRowSet = $accountsTable.find('tr:not(:first-child)');
+        tableFudge = 2;
+    }
 
     // Iterate over accounts defined
-    $accountsTable.find('tr:not(:first-child)').each(function(index) {
+    $tableRowSet.each(function(index) {
 
         // If one of the previous requests returned a fatal error,
         // get the hell out of here, she's gonna blow!
@@ -402,13 +550,14 @@ function updateAllAccounts(event) {
         }
 
         // Instantiate vars to make the code more readable
-        var tableRow = index + 2;
+        var tableRow = index + tableFudge;
         var $firstCell = $(this).children('td:first');
         var accountId = accountArray[tableRow];
 
         // Chuck in loading image
-        $firstCell.children('img').remove();
-        $firstCell.append($IMAGE_LOADING.clone().css('float', 'left'));
+        $firstCell.children('img.warningIcon').remove();
+        $firstCell.children('img.successIcon').remove();
+        $firstCell.prepend($IMAGE_LOADING.clone().css('float', 'left'));
 
         // Requests are asynchronous, so store details
         // of the active request. (Reversed for lookup
@@ -434,13 +583,13 @@ function updateAllAccounts(event) {
  * Response handler for account credit info
  * @param json JSON response
  * @see updateAllAccounts
- * @version 2011061301
+ * @version 2012101601
  * @since 2011061001
  */
 function handleAccountInfoUpdate(json) {
 
     // If this transaction is not recognised, throw it in the trash
-    if (! json.accountID || activeRequests[json.accountID] == null) {
+    if (! json.accountID || typeof(activeRequests[json.accountID]) === 'udnefined') {
         return;
     }
 
@@ -449,7 +598,7 @@ function handleAccountInfoUpdate(json) {
     var $firstCell = $accountRow.find('td:first');
 
     // Remove loading image
-    $firstCell.children('img').remove();
+    $firstCell.children('img.loadingIcon').remove();
 
     // If the response indicates errors...
     if (json.hasError) {
@@ -504,7 +653,7 @@ function handleAccountInfoUpdate(json) {
         }, 3000);
     }
 
-    activeRequests[json.accountID] = null;  //I'd use splice(), but it re-indexes the array
+    delete activeRequests[json.accountID];
 
 }
 
@@ -518,15 +667,20 @@ $(document).ready(function() {
 
     // Instantiate progress bar reference
     $accountsTable = $('table#accountListTable');
-    $updateAllButton = $('button#updateAllAccounts');
+    $updateAllButton = $('button#mdltxtUpdateAllAccounts');
     $progressBar = $('div#accountProgressBar');
     $progressBarTextValue = $('div#accountProgressTextValue');
-    $accountRestrictionsDialog = $('#accountRestrictionsDialog');
+    $accountEditDialog = $('#accountEditDialog');
+    $accountRestrictionsDialog = $('#mdltxtAccountRestrictionsDialog');
     $userSearcher = $('input#id_accountSelector');
     $allowedUserList = $('select#id_restrictedUsers');
-    $saveUserRestrictionsButton = $('#id_submitButton');
 
-    numberOfAccounts = $accountsTable.find('tr:not(:first-child)').length;
+    // In Moodle 2.4 and above, tables are rendered with <thead> tags
+    if ($accountsTable.children('thead').length > 0) {
+        numberOfAccounts = $accountsTable.find('tbody tr').length;
+    } else {
+        numberOfAccounts = $accountsTable.find('tr:not(:first-child)').length;
+    }
     
     /*
      * ACCESS RESTRICTIONS FORM BINDS
@@ -559,8 +713,8 @@ $(document).ready(function() {
                             return {
                                 label   :   nameDisplayString(item.firstName, item.lastName, item.username),
                                 value   :   index
-                            }
-                        }))
+                            };
+                        }));
                     });
                 },
                 focus       :   function(event, ui) {
@@ -581,8 +735,6 @@ $(document).ready(function() {
         $allowedUserList.removeOption(/./, true);
     });
     
-    $saveUserRestrictionsButton.click(updateUserRestrictionData);
-
 
 
     /*
@@ -593,13 +745,28 @@ $(document).ready(function() {
     $updateAllButton.click(updateAllAccounts);
     $updateAllButton.removeAttr('disabled'); // Weird glitch in FF4
 
-    // Show access dialog when icon is clicked
-    $accountsTable.find('td:nth-child(4) img:first').each(function(index) {
-        $(this).click(loadUserRestrictionData);
+    // Show editing dialog when icon is clicked
+    $accountsTable.find('td:first-child img').each(function(index) {
+        $(this).click(function(event) {
+            loadAccountDialog(event, handleLoadedUserEditData);
+        });
     });
+    
+    // Save edited account info when form is submitted
+    $accountEditDialog.find('input[type=submit]').click(updateAccountData);
+
+    // Show access dialog when icon is clicked
+    $accountsTable.find('td:nth-child(4) img:first-child').each(function(index) {
+        $(this).click(function(event) {
+            loadAccountDialog(event, handleLoadedUserRestrictionData);
+        });
+    });
+    
+    // Save access info when form is submitted
+    $accountRestrictionsDialog.find('input[type=submit]').click(updateUserRestrictionData);
    
    // Toggle outbound access when clicked
-    $accountsTable.find('td:nth-child(4) img:last').each(function(index) {
+    $accountsTable.find('td:nth-child(4) img:last-child').each(function(index) {
         $(this).click(toggleOutboundAccess);
     });
 

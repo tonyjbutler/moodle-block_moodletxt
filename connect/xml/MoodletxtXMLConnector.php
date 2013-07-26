@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052801
+ * @version 2013071001
  * @since 2011032901
  */
 
@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052801
+ * @version 2013071001
  * @since 2011032901
  */
 class MoodletxtXMLConnector {
@@ -47,8 +47,9 @@ class MoodletxtXMLConnector {
     /**
      * User agent for PHP API
      * @var string
+     * @todo Move this up to MoodletxtOutboundController
      */
-    private $USER_AGENT = 'moodletxt 3.0-beta1';
+    private $USER_AGENT = 'moodletxt 3.0.5';
 
     /**
      * Sets up the connector and selects protocol
@@ -74,7 +75,7 @@ class MoodletxtXMLConnector {
      * @param array $requestArray Requests to send
      * @return array Unparsed response from txttools
      * @throws SocketException, HTTPException
-     * @version 2011041301
+     * @version 2012101901
      * @since 2011032901
      */
     public function sendData($requestArray) {
@@ -83,21 +84,39 @@ class MoodletxtXMLConnector {
         if (! is_array($requestArray))
             $requestArray = array($requestArray);
 
+        // Set defaults
+        $pathPrefix = "https://";
+        $txttoolsHost = 'www.txttools.co.uk';
+        $filePath = '/connectors/XML/xml.jsp';
+        $fullPath = $filePath;
+        $connectionPrefix = 'ssl://';
+        $connectionHost = $txttoolsHost;
+        $connectionPort = 443;        
+        
+        // Get proxy details
+        $proxyHost     = get_config('moodletxt', 'Proxy_Host');
+        $proxyPort     = get_config('moodletxt', 'Proxy_Port');
+        $proxyUsername = get_config('moodletxt', 'Proxy_Username');
+        $proxyPassword = get_config('moodletxt', 'Proxy_Password');
+        
+        
         // Check for protocol
-        if ($this->protocol == MoodletxtOutboundController::$CONNECTION_TYPE_SSL) {
+        if ($this->protocol != MoodletxtOutboundController::$CONNECTION_TYPE_SSL) {
 
-            $port = 443;
-            $prefix = 'ssl://';
-
-        } else {
-
-            $port = 80;
-            $prefix = '';
+            $connectionPort = 80;
+            $pathPrefix = "http://";
+            $connectionPrefix = '';
 
         }
+        
+        // If proxy details are set, override defaults
+        if ($proxyHost != '' && $proxyPort != '') {
+            $connectionHost = $proxyHost;
+            $connectionPort = $proxyPort;
+            $fullPath = "http://" . $txttoolsHost . $filePath;
+            $connectionPrefix = '';
+        }
 
-        $host = 'www.txttools.co.uk';
-        $path = '/connectors/XML/xml.jsp';
 
         $responseArray = array();
 
@@ -107,9 +126,12 @@ class MoodletxtXMLConnector {
             $poststring = "XMLPost=" . urlencode($request);
 
             // Build connection string
-            $request  = "POST " . $path . " HTTP/1.0\r\n";
-            $request .= "Host: " . $host . "\r\n";
+            $request  = "POST " . $fullPath . " HTTP/1.0\r\n";
+            $request .= "Host: " . $txttoolsHost . "\r\n";
             $request .= "User-Agent: " . $this->USER_AGENT . "\r\n";
+            if ($proxyHost != '' && $proxyPort != '') {
+                $request .=  "Proxy-Authorization: Basic " . base64_encode($proxyUsername . ":" . $proxyPassword) . "\r\n";
+            }
             $request .= "Content-type: application/x-www-form-urlencoded\r\n";
             $request .= "Content-length: " . strlen($poststring) . "\r\n";
             $request .= "Connection: close\r\n\r\n";
@@ -118,7 +140,7 @@ class MoodletxtXMLConnector {
 //            error_log(get_string('logxmlblocksent', 'block_moodletxt') . "\r\n\r\n" . $request);
 
             // Open socket
-            $fp = fsockopen($prefix . $host, $port, $errorNo, $errorStr, $timeout = 30);
+            $fp = @fsockopen($connectionPrefix . $connectionHost, $connectionPort, $errorNo, $errorStr, $timeout = 30);
 
             if (! $fp) {
 

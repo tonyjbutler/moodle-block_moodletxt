@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,13 +20,13 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052301
+ * @version 2012092101
  * @since 2011062901
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
-require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/forms/MoodletxtAbstractForm.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/MoodletxtInboundFilterDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtPhoneNumber.php');
@@ -38,10 +38,10 @@ require_once($CFG->dirroot . '/blocks/moodletxt/renderer.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052301
+ * @version 2012092101
  * @since 2011062901
  */
-class MoodletxtFiltersForm extends moodleform {
+class MoodletxtFiltersForm extends MoodletxtAbstractForm {
 
     /**
      * Sets up form for display to user
@@ -78,16 +78,16 @@ class MoodletxtFiltersForm extends moodleform {
         $restrictionsForm->addElement('select', 'filterAccountList', get_string('adminlabelselectacc', 'block_moodletxt'), $this->_customdata['filterAccountList']);
         $restrictionsForm->setType('filterAccountList', PARAM_INT);
 
-        $restrictionsForm->addElement('selectdynamicwithimage', 'existingKeywordFilterList', get_string('adminlabelfilterskeyword', 'block_moodletxt'), array(), array('class' => 'mdltxt'), new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddfilter', 'block_moodletxt'), array('id' => 'addKeywordFilter', 'class' => 'clickableIcon')));
+        $restrictionsForm->addElement('selectdynamicwithimage', 'existingKeywordFilterList', get_string('adminlabelfilterskeyword', 'block_moodletxt'), array(), array('class' => 'mdltxt'), new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddfilter', 'block_moodletxt'), array('id' => 'addKeywordFilter', 'class' => 'mdltxtClickableIcon')));
         $restrictionsForm->setType('existingKeywordFilterList', PARAM_INT);
         
-        $restrictionsForm->addElement('textwithimage', 'newKeywordFilter', get_string('adminlabelfilterkeyword', 'block_moodletxt'), array(), new moodletxt_icon(moodletxt_icon::$ICON_DELETE, get_string('altcancelfilter', 'block_moodletxt'), array('id' => 'cancelKeywordFilter', 'class' => 'clickableIcon')));
+        $restrictionsForm->addElement('textwithimage', 'newKeywordFilter', get_string('adminlabelfilterkeyword', 'block_moodletxt'), array(), new moodletxt_icon(moodletxt_icon::$ICON_DELETE, get_string('altcancelfilter', 'block_moodletxt'), array('id' => 'cancelKeywordFilter', 'class' => 'mdltxtClickableIcon')));
         $restrictionsForm->setType('newKeywordFilter', PARAM_ALPHA);
         
-        $restrictionsForm->addElement('selectdynamicwithimage', 'existingPhoneNumberFilterList', get_string('adminlabelfiltersphone', 'block_moodletxt'), array(), array('class' => 'mdltxt'), new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddfilter', 'block_moodletxt'), array('id' => 'addPhoneFilter', 'class' => 'clickableIcon')));
+        $restrictionsForm->addElement('selectdynamicwithimage', 'existingPhoneNumberFilterList', get_string('adminlabelfiltersphone', 'block_moodletxt'), array(), array('class' => 'mdltxt'), new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddfilter', 'block_moodletxt'), array('id' => 'addPhoneFilter', 'class' => 'mdltxtClickableIcon')));
         $restrictionsForm->setType('existingPhoneNumberFilterList', PARAM_INT);
         
-        $restrictionsForm->addElement('textwithimage', 'newPhoneNumberFilter', get_string('adminlabelfilterphone', 'block_moodletxt'), array(), new moodletxt_icon(moodletxt_icon::$ICON_DELETE, get_string('altcancelfilter', 'block_moodletxt'), array('id' => 'cancelPhoneFilter', 'class' => 'clickableIcon')));
+        $restrictionsForm->addElement('textwithimage', 'newPhoneNumberFilter', get_string('adminlabelfilterphone', 'block_moodletxt'), array(), new moodletxt_icon(moodletxt_icon::$ICON_DELETE, get_string('altcancelfilter', 'block_moodletxt'), array('id' => 'cancelPhoneFilter', 'class' => 'mdltxtClickableIcon')));
         $restrictionsForm->setType('newPhoneNumberFilter', PARAM_RAW);
         
         $restrictionsForm->addElement('selectdynamic', 'usersOnFilter', '', array(), array('size' => 5, 'multiple' => 'multiple', 'style' => 'min-width:100px;'));
@@ -112,11 +112,10 @@ class MoodletxtFiltersForm extends moodleform {
      * @param array $formdata Submitted data from form
      * @param object $files File uploads from form
      * @return array(string => string) Array of errors, if any found
-     * @version 2011071201
+     * @version 2012081401
      * @since 2011062901
      */
     public function validation($formData, $files=null) {
-        
         $err = array();
         
         $accountDAO = new TxttoolsAccountDAO();
@@ -130,11 +129,11 @@ class MoodletxtFiltersForm extends moodleform {
             $err['filterAccountList'] = get_string('errorfilternoaccount', 'block_moodletxt');
         
         // Clean up any potential data cockups on the user list
-        if (! isset($formData['usersOnFilter[]']) || $formData['usersOnFilter[]'] == '')
-            $formData['usersOnFilter[]'] = array();
+        if (! isset($formData['usersOnFilter']) || $formData['usersOnFilter'] == '')
+            $formData['usersOnFilter'] = array();
         
-        else if (! is_array($formData['usersOnFilter[]']))
-            $formData['usersOnFilter[]'] = array($formData['usersOnFilter[]']);
+        else if (! is_array($formData['usersOnFilter']))
+            $formData['usersOnFilter'] = array($formData['usersOnFilter']);
             
         
         // Check that, if a new phone number filter has been entered, it is valid
@@ -144,8 +143,8 @@ class MoodletxtFiltersForm extends moodleform {
         if ($formData['newKeywordFilter'] != '' || $formData['newPhoneNumberFilter'] != '') {
             
             // When creating a new filter, the user must have selected recipient inboxes
-            if (count($formData['usersOnFilter[]']) == 0)
-                $err['usersOnFilter[]'] = get_string('errorfilternousers', 'block_moodletxt');
+            if (count($formData['usersOnFilter']) == 0)
+                $err['usersOnFilter'] = get_string('errorfilternousers', 'block_moodletxt');
             
             $type = ($formData['newKeywordFilter'] != '') ? MoodletxtInboundFilter::$FILTER_TYPE_KEYWORD : MoodletxtInboundFilter::$FILTER_TYPE_PHONE_NUMBER;
             $value = ($formData['newKeywordFilter'] != '') ? $formData['newKeywordFilter'] : $formData['newPhoneNumberFilter'];
@@ -160,8 +159,8 @@ class MoodletxtFiltersForm extends moodleform {
         } else if ($formData['existingKeywordFilterList'] <= 0 && $formData['existingPhoneNumberFilterList'] <= 0) { 
             $err['existingKeywordFilterList'] = get_string('errorfilternotselected', 'block_moodletxt');
         }
-            
-        return array();
+
+        return $err;
         
     }
     
@@ -207,18 +206,7 @@ class MoodletxtFiltersForm extends moodleform {
         return $formData;
         
     }
-    
-    /**
-     * Method used to render the form as a string,
-     * rather than immediately dumping to screen.
-     * @return string Rendered HTML
-     * @version 2011062901
-     * @since 2011062901
-     */
-    public function toHtml() {
-        return $this->_form->toHtml();
-    }
-    
+        
 }
 
 ?>

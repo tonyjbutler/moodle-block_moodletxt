@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2012110501
  * @since 2011042601
  */
 
@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtBiteSizedUser.php'
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012060101
+ * @version 2012110501
  * @since 2011042601
  */
 class TxttoolsAccountDAO {
@@ -90,6 +90,75 @@ class TxttoolsAccountDAO {
     }
     
     /**
+     * Returns all ConnectTxt accounts that the given user has access to
+     * @global moodle_database $DB Moodle database controller 
+     * @param int $userId The ID of the user to check access for
+     * @param boolean $restrictOutbound Whether to check outbound restrictions
+     * @param boolean $restrictInbound Whether to check inbound restrictions
+     * @return TxttoolsAccount[] All accounts found
+     * @version 2012110501
+     * @since 2012072201
+     */
+    public function getAccessibleAccountsForUserId($userId, $restrictOutbound = true, $restrictInbound = true) {
+        
+        global $DB;
+
+        $restrictions = '';
+        
+        if ($restrictOutbound)
+            $restrictions .= ' AND accounts.outboundenabled = 1';
+        
+        if ($restrictInbound)
+            $restrictions .= ' AND accounts.inboundenabled = 1';
+                
+        // Oracle doesn't like aliasing these select-from-union
+        // queries, which is made more annoying by it *requiring*
+        // select-from-union so that the results can be sorted,
+        // as Derby uses sorting to perform a union in the first place.
+        // Hurt your head yet?
+        $queryAlias = ($DB->get_dbfamily() != 'oracle') ? ' AS icanseeyou' : '';
+        
+        $sql = 'SELECT * FROM (
+            
+                    SELECT accounts.*, usertable.firstname, usertable.lastname, 
+                    usertable.username AS defaultusername
+                    FROM {block_moodletxt_accounts} accounts
+                    INNER JOIN {user} usertable
+                        ON accounts.defaultuser = usertable.id
+                    INNER JOIN {block_moodletxt_restrict} restrictions
+                        ON accounts.id = restrictions.txttoolsaccount
+                    WHERE restrictions.moodleuser = :userid
+
+                    ' . $restrictions . '
+
+                    UNION
+
+                    SELECT accounts.*, usertable.firstname, usertable.lastname,
+                    usertable.username AS defaultusername
+                    FROM {block_moodletxt_accounts} accounts
+                    INNER JOIN {user} usertable
+                        on accounts.defaultuser = usertable.id
+                    LEFT JOIN {block_moodletxt_restrict} restrictions
+                        ON accounts.id = restrictions.txttoolsaccount
+                    WHERE restrictions.moodleuser IS NULL '
+
+                    . $restrictions . '
+                
+                )' . $queryAlias . ' ORDER BY username ASC';
+        
+        $returnArray = array();
+        $rawRecords = $DB->get_records_sql($sql, array('userid' => $userId));
+        
+        foreach($rawRecords as $rawRecord) {
+            $txttoolsAccount = $this->convertStandardClassToBean($rawRecord);                    
+            $returnArray[$txttoolsAccount->getId()] = $txttoolsAccount;
+        }
+        
+        return $returnArray;
+        
+    }
+    
+    /**
      * Fetches a txttools account by DB record ID
      * @global moodle_database $DB Moodle database controller 
      * @param int $accountId DB record ID
@@ -130,7 +199,7 @@ class TxttoolsAccountDAO {
      * @param string $txttoolsUsername Username of account
      * @param boolean $includeRestrictions Turn this off if restrictions aren't needed to speed up fetch
      * @param boolean $includeFilters Turn this on if filters are needed - slows down fetch
-     * @return txttoolsAccount txttools account
+     * @return TxttoolsAccount txttools account
      * @version 2012042301
      * @since 2011042601
      */
@@ -165,7 +234,7 @@ class TxttoolsAccountDAO {
      * @param boolean $includeRestrictions Turn this off if restrictions aren't needed to speed up fetch
      * @param boolean $includeFilters Turn this off if filters aren't needed to speed up fetch
      * @return TxttoolsAccount[] All accounts found
-     * @version 2012042301
+     * @version 2012073101
      * @since 2011060801
      */
     public function getAllTxttoolsAccounts($includeRestrictions = true, $includeFilters = true, 
@@ -181,14 +250,15 @@ class TxttoolsAccountDAO {
                 INNER JOIN {user} usertable
                     ON accounts.defaultuser = usertable.id';
         
-        if ($checkActiveOutbound || $checkActiveInbound)
-            $sql .= ' WHERE';
-        
-        if ($checkActiveOutbound)
+        if ($checkActiveOutbound) {
+            $sql .= (strpos($sql, 'WHERE') > 0) ? ' AND' : ' WHERE';
             $sql .= ' accounts.outboundenabled = 1';
+        }
         
-        if ($checkActiveInbound)
+        if ($checkActiveInbound) {
+            $sql .= (strpos($sql, 'WHERE') > 0) ? ' AND' : ' WHERE';
             $sql .= ' accounts.inboundenabled = 1';
+        }
         
         $sql .= ' ORDER BY accounts.username ASC';
         
@@ -339,7 +409,7 @@ class TxttoolsAccountDAO {
      * Moodle DB layer into a full data type
      * @param object $standardClass DB record object
      * @return txttoolsAccount Converted acount
-     * @version 2012042301
+     * @version 2012100801
      * @since 2011042601
      */
     private function convertStandardClassToBean($standardClass) {
@@ -351,7 +421,7 @@ class TxttoolsAccountDAO {
                 $standardClass->lastname
         );
         
-        $txttoolsAccount = new txttoolsAccount(
+        $txttoolsAccount = new TxttoolsAccount(
                 $standardClass->username,
                 $standardClass->description,
                 $defaultUser,

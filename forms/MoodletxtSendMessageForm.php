@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,13 +21,13 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 20120312801
+ * @version 2013052101
  * @since 2011101702
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
-require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/forms/MoodletxtAbstractForm.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/forms/quickforms/MoodleQuickFormWithSlides.php');
 
 /**
@@ -36,10 +36,10 @@ require_once($CFG->dirroot . '/blocks/moodletxt/forms/quickforms/MoodleQuickForm
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 20120312801
+ * @version 2013052101
  * @since 2011101702
  */
-class MoodletxtSendMessageForm extends moodleform {
+class MoodletxtSendMessageForm extends MoodletxtAbstractForm {
 
     /**
      * HTML template used when rendering the advmultiselect
@@ -74,7 +74,7 @@ class MoodletxtSendMessageForm extends moodleform {
      * @param string $target Form's target
      * @param array $attributes HTML form attributes
      * @param boolean $editable Whether the form can be edited
-     * @version 2011101901
+     * @version 2013050801
      * @since 2011101901
      */
     public function __construct($action = null, array $customdata = array(), 
@@ -99,6 +99,11 @@ class MoodletxtSendMessageForm extends moodleform {
         $this->_form->setType('_qf__'.$this->_formname, PARAM_RAW);
         $this->_form->setDefault('_qf__'.$this->_formname, 1);
         $this->_form->_setDefaultRuleMessages();
+        
+        // Moodle 2.5 and above have auto-collapsing forms. Not appropriate here!
+        // (Using method_exists() so that 2.0-2.4 and 2.5+ can share the same code base)
+        if (method_exists($this->_form, 'setDisableShortforms'))
+            $this->_form->setDisableShortforms(true);
 
         // we have to know all input types before processing submission ;-)
         $this->_process_submission($method);
@@ -108,7 +113,7 @@ class MoodletxtSendMessageForm extends moodleform {
     /**
      * Sets up form for display to user
      * @global object $CFG Moodle global config
-     * @version 2012030701
+     * @version 2013052101
      * @since 2011101702
      */
     public function definition() {
@@ -125,8 +130,8 @@ class MoodletxtSendMessageForm extends moodleform {
         
         $sendForm->registerElementType(
                 'advmultiselect',
-                $CFG->dirroot . '/blocks/moodletxt/forms/elements/lib/HTML_QuickForm_advmultiselect.php',
-                'HTML_QuickForm_advmultiselect'
+                $CFG->dirroot . '/blocks/moodletxt/forms/elements/QuickFormRecipientMultiselect.php',
+                'QuickFormRecipientMultiselect'
         );
         
         
@@ -151,7 +156,7 @@ class MoodletxtSendMessageForm extends moodleform {
                 ),
                 $this->_customdata['potentialRecipients'],
                 array(
-                    'class' => 'multiselect',
+                    'class' => 'mdltxtMultiselect',
                     'style' => '' // Prevent inline styling, it is the work of the devil
                 ),
                 SORT_ASC
@@ -166,19 +171,17 @@ class MoodletxtSendMessageForm extends moodleform {
         $recipientTypeSelectors = array();
         $recipientTypeSelectors[] = &$sendForm->createElement('button', 'showUsers', 'Users', array('class' => 'recipientTypeSelector'));
         $recipientTypeSelectors[] = &$sendForm->createElement('button', 'showUserGroups', 'User Groups', array('class' => 'recipientTypeSelector'));
-        $sendForm->addGroup($recipientTypeSelectors, 'recipientTypeSelectors', get_string('labelrecipienttypeselect', 'block_moodletxt'), array(' '), false);
         
-        $recipientTypeSelectors2 = array();
-        $recipientTypeSelectors2[] = &$sendForm->createElement('button', 'showAddressbookContacts', 'Addressbook Contacts', array('class' => 'recipientTypeSelector'));
-        $recipientTypeSelectors2[] = &$sendForm->createElement('button', 'showAddressbookGroups', 'Addressbook Groups', array('class' => 'recipientTypeSelector'));
-        $sendForm->addGroup($recipientTypeSelectors2, 'recipientTypeSelectors2', '', array(' '), false);
+        $recipientTypeSelectors[] = &$sendForm->createElement('button', 'showAddressbookContacts', 'Addressbook Contacts', array('class' => 'recipientTypeSelector'));
+        $recipientTypeSelectors[] = &$sendForm->createElement('button', 'showAddressbookGroups', 'Addressbook Groups', array('class' => 'recipientTypeSelector'));
+        $sendForm->addGroup($recipientTypeSelectors, 'recipientTypeSelectors', get_string('labelrecipienttypeselect', 'block_moodletxt'), array(' '), false);
         
         $sendForm->addElement('header', 'additionalContact', 'Add Additional Contact');
         
-        $sendForm->addElement('text', 'addfirstname', get_string('labeladditionalname', 'block_moodletxt'), array('size' => '15', 'maxlength' => '30'));
+        $sendForm->addElement('text', 'addfirstname', get_string('labeladditionalfirstname', 'block_moodletxt'), array('size' => '15', 'maxlength' => '30'));
         $sendForm->setType('addfirstname', PARAM_ALPHANUMEXT);
             
-        $sendForm->addElement('text', 'addlastname', get_string('labeladditionalname', 'block_moodletxt'), array('size' => '15', 'maxlength' => '30'));
+        $sendForm->addElement('text', 'addlastname', get_string('labeladditionallastname', 'block_moodletxt'), array('size' => '15', 'maxlength' => '30'));
         $sendForm->setType('addlastname', PARAM_ALPHANUMEXT);
         
         $sendForm->addElement('text', 'addnumber', get_string('labeladditionalnumber', 'block_moodletxt'), array('size' => '20', 'maxlength' => '20'));
@@ -285,7 +288,7 @@ class MoodletxtSendMessageForm extends moodleform {
      * @param array $formdata Submitted data
      * @param array $files Uploaded files
      * @return array Set of any errors found
-     * @version 20120312801
+     * @version 2012100401
      * @since 2011101702
      */
     public function validation($formdata, $files = null) {
@@ -295,7 +298,7 @@ class MoodletxtSendMessageForm extends moodleform {
         
         
         if (! isset($formdata['recipients']) || $formdata['recipients'] == '')
-            $err['recipients-f'] = get_string('errornorecipients', 'block_moodletxt');
+            $err['recipients'] = get_string('errornorecipientsselected', 'block_moodletxt');
         
         else if (! is_array($formdata['recipients']))
             $formdata['recipients'] = array($formdata['recipients']);
@@ -308,7 +311,14 @@ class MoodletxtSendMessageForm extends moodleform {
         
         } else if ($formdata['schedule'] == 'schedule') {
             
-            $scheduleUTCTime = usertime($formdata['scheduletime']);
+            $scheduleUTCTime = usertime(gmmktime(
+                $formdata['scheduletime']['H'], 
+                $formdata['scheduletime']['i'], 
+                0, 
+                $formdata['scheduletime']['M'], 
+                $formdata['scheduletime']['d'], 
+                $formdata['scheduletime']['Y']
+            ));
             
             if ($scheduleUTCTime < time())
                 $err['scheduletime'] = get_string('errordocbrown', 'block_moodletxt');
@@ -351,6 +361,7 @@ class MoodletxtSendMessageForm extends moodleform {
         return $formdata;
         
     }
+    
 }
 
 ?>

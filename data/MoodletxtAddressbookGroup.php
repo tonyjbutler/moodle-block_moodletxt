@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012031401
+ * @version 2013052101
  * @since 2011102601
  */
 
@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/data/MoodletxtAddressbookRecipie
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012031401
+ * @version 2013052101
  * @since 2011102601
  */
 class MoodletxtAddressbookGroup {
@@ -60,25 +60,30 @@ class MoodletxtAddressbookGroup {
     
     /**
      * Array of contacts within the group
-     * @var array(MoodletxtAddressbookRecipient)
-     * @see MoodletxtAddressbookRecipient
+     * NOTE: If this is null, the DAO will ignore contacts
+     * when saving. If this is an array, empty or otherwise,
+     * the DAO will synchronise the database to match
+     * this list of groups for the addressbook recipient
+     * @var MoodletxtAddressbookRecipient[]
      */
-    private $contacts = array();
+    private $contacts;
     
     /**
      * Instantiates the group with its current data set
-     * @param int $id Group record ID
      * @param string $name Group name
      * @param int $addressbookId ID of containing addressbook
-     * @param array(MoodletxtAddressbookRecipient) $contacts Group member contacts
-     * @version 2011102601
+     * @param int $id Group record ID
+     * @param MoodletxtAddressbookRecipient[] $contacts Group member contacts
+     * @version 2012092401
      * @since 2011102601
      */
-    public function __construct($id, $name, $addressbookId = 0, array $contacts = array()) {
-        $this->setId($id);
+    public function __construct($name, $addressbookId = 0, $id = 0, array $contacts = null) {
         $this->setName($name);
         $this->setAddressbookId($addressbookId);
-        $this->setContacts($contacts);
+        $this->setId($id);
+        
+        if ($contacts !== null)
+            $this->setContacts($contacts);
     }
     
     /**
@@ -94,11 +99,13 @@ class MoodletxtAddressbookGroup {
     /**
      * Sets the record ID of this group
      * @param int $id Group record ID
-     * @version 2011102601
+     * @version 2013052101
      * @since 2011102601
      */
     public function setId($id) {
-        if (is_int($id) && $id > 0)
+        $id = (int) $id;
+        
+        if ($id > 0)
             $this->id = $id;
     }
 
@@ -145,7 +152,7 @@ class MoodletxtAddressbookGroup {
     
     /**
      * Returns a collection of contacts contained within this group
-     * @return array(MoodletxtAddressbookRecipient) Group contacts
+     * @return MoodletxtAddressbookRecipient[] Group contacts
      * @version 2011102601
      * @since 2011102601
      */
@@ -170,11 +177,48 @@ class MoodletxtAddressbookGroup {
     /**
      * Adds a contact to the group
      * @param MoodletxtAddressbookRecipient $contact Contact to add
-     * @version 2011102601
+     * @version 2012092501
      * @since 2011102601
      */
     public function addContact(MoodletxtAddressbookRecipient $contact) {
-        $this->contacts[$contact->getId()] = $contact;
+        
+        if (! is_array($this->contacts))
+            $this->contacts = array();
+        
+        $this->contacts[$contact->getContactId()] = $contact;
+    }
+    
+    /**
+     * Indicates whether this group contains any contacts
+     * @return boolean True if this group has contacts
+     * @version 2012092401
+     * @since 2012092401
+     */
+    public function hasContacts() {
+        return ($this->contacts !== null && is_array($this->contacts));
+    }
+
+    /**
+     * Returns the number of contacts contained
+     * within this addressbook group
+     * @return int Number of member contacts
+     * @version 2012092401
+     * @since 2012092401
+     */
+    public function contactCount() {
+        if ($this->contacts === null)
+            return 0;
+        else
+            return count($this->contacts);
+    }
+    
+    /**
+     * Clears any contact associations this group contains
+     * @version 2012092401
+     * @since 2012092401
+     */
+    public function clearContacts() {
+        $this->contacts = null;
     }
     
 }

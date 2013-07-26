@@ -10,7 +10,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042401
+ * @version 2013070201
  * @since 2011042601
  */
 
@@ -31,10 +31,11 @@ require_once($CFG->libdir . '/tablelib.php');
 
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsSentMessageDAO.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/forms/TxttoolsAccountEditForm.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/forms/TxttoolsAccountRestrictionsForm.php');
 
 require_login();
-require_capability('block/moodletxt:adminsettings', get_context_instance(CONTEXT_SYSTEM));
+require_capability('block/moodletxt:adminsettings', context_system::instance());
 
 // OK, so you're legit. Let's load DAOs
 $accountDAO = new TxttoolsAccountDAO();
@@ -48,9 +49,13 @@ if (count($accountList) == 0)
     redirect($CFG->wwwroot . '/blocks/moodletxt/settings_accounts_new.php', get_string('redirectnoaccountsfound', 'block_moodletxt'));
 
 // Account IDs are passed to JS for AJAX transactions
-// Shifted up 2 indices to match onscreen table rows
+// Shifted up to match onscreen table rows
 $accountIds = array();
-$accountTableIndex = 2;
+
+// To further complicate things, Moodle 2.4 and above
+// actually render tables correctly, with <tbody> tags
+// and everything, so the index is different
+$accountTableIndex = ($CFG->version >= 2012120300) ? 1 : 2;
 
 foreach($accountList as $accountId => $account) {
     $accountIds[$accountTableIndex++] = $accountId;
@@ -66,6 +71,7 @@ $PAGE->set_heading(get_string('adminheaderaccountslist', 'block_moodletxt'));
 $PAGE->set_title(get_string('admintitleaccountlist', 'block_moodletxt'));
 $PAGE->set_button(''); // Clear editing button
 $PAGE->set_focuscontrol('id_accountName'); // Focus username field on load
+$PAGE->set_docs_path('admin/setting/moodletxtaccounts'); // External admin pages get their MoodleDocs links messed up
 $PAGE->navbar->add(get_string('navmoodletxt', 'block_moodletxt'), $CFG->wwwroot . '/admin/settings.php?section=blocksettingmoodletxt', navigation_node::TYPE_CUSTOM, 'moodletxt');
 $PAGE->navbar->add(get_string('navaccounts', 'block_moodletxt'), null, navigation_node::TYPE_CUSTOM, 'moodletxt');
 
@@ -111,6 +117,7 @@ $output = $PAGE->get_renderer('block_moodletxt');
  * Create results table
  */
 $table = new flexible_table('block-moodletxt-accountlist');
+$table->define_baseurl($CFG->wwwroot . '/blocks/moodletxt/settings_accounts.php'); // Required in 2.2 for export
 $table->set_attribute('id', 'accountListTable');
 $table->set_attribute('class', 'generaltable generalbox boxaligncenter boxwidthwide');
 $table->collapsible(true);
@@ -134,25 +141,17 @@ $tableheaders = array(
 $table->define_columns($tablecolumns);
 $table->define_headers($tableheaders);
 
-$table->column_class('username',        'mdltxt_columnline');
-$table->column_class('description',     'mdltxt_columnline');
-$table->column_class('messagessent',    'mdltxt_columnline');
-$table->column_class('allowoutbound',   'mdltxt_columnline');
-$table->column_class('allowinbound',    'mdltxt_columnline');
-$table->column_class('creditsused',     'mdltxt_columnline');
-$table->column_class('creditsremaining','mdltxt_columnline');
-$table->column_class('accounttype',     'mdltxt_columnline');
-
 $table->setup();
 
 
 /*
  * Let's get to the output, baby
  */
-$accessImage   = new moodletxt_icon(moodletxt_icon::$ICON_ACCESS_EDIT, get_string('altaccessedit', 'block_moodletxt'), array('class' => 'clickableIcon', 'style' => 'float:left;'));
-$deniedImage   = new moodletxt_icon(moodletxt_icon::$ICON_ACCESS_DENIED, get_string('altaccessdenied', 'block_moodletxt'), array('class' => 'clickableIcon'));
-$outboundImage = new moodletxt_icon(moodletxt_icon::$ICON_ALLOW_OUTBOUND, get_string('altaccessoutbound', 'block_moodletxt'), array('class' => 'clickableIcon'));
-$inboundImage  = new moodletxt_icon(moodletxt_icon::$ICON_ALLOW_INBOUND, get_string('altaccessinbound', 'block_moodletxt'), array('class' => 'clickableIcon'));
+$editImage     = new moodletxt_icon(moodletxt_icon::$ICON_EDIT, get_string('altaccountedit', 'block_moodletxt'), array('class' => 'mdltxtClickableIcon', 'style' => 'float:left;'));
+$accessImage   = new moodletxt_icon(moodletxt_icon::$ICON_ACCESS_EDIT, get_string('altaccessedit', 'block_moodletxt'), array('class' => 'mdltxtClickableIcon', 'style' => 'float:left;'));
+$deniedImage   = new moodletxt_icon(moodletxt_icon::$ICON_ACCESS_DENIED, get_string('altaccessdenied', 'block_moodletxt'), array('class' => 'mdltxtClickableIcon'));
+$outboundImage = new moodletxt_icon(moodletxt_icon::$ICON_ALLOW_OUTBOUND, get_string('altaccessoutbound', 'block_moodletxt'), array('class' => 'mdltxtClickableIcon'));
+$inboundImage  = new moodletxt_icon(moodletxt_icon::$ICON_ALLOW_INBOUND, get_string('altaccessinbound', 'block_moodletxt'), array('class' => 'mdltxtClickableIcon'));
 
 echo($output->header());
 
@@ -167,7 +166,7 @@ echo($output->box(
 ));
 
 // Update button and progress bar
-echo(html_writer::tag('button', get_string('adminaccountbutupdateall', 'block_moodletxt'), array('id' => 'updateAllAccounts')));
+echo(html_writer::tag('button', get_string('adminaccountbutupdateall', 'block_moodletxt'), array('id' => 'mdltxtUpdateAllAccounts')));
 echo($output->render(new moodletxt_ui_progress_bar('accountProgressBar', 'accountProgressTextValue')));
 
 // Populate table
@@ -190,7 +189,7 @@ foreach($accountList as $account) {
             get_string('billingtypeinvoiced', 'block_moodletxt');
 
     $table->add_data(array(
-        $account->getUsername(),
+        $output->render($editImage) . $account->getUsername(),
         $account->getDescription(),
         $sentMessageDAO->countMessagesSent($account->getId()),
         $output->render($accessImage) . $output->render($outboundEnabled),
@@ -205,14 +204,26 @@ foreach($accountList as $account) {
 
 $table->finish_output();
 
+// Dialog box used for account editing form
+$editForm = new TxttoolsAccountEditForm();
+$editDialog = new moodletxt_ui_dialog(
+    'accountEditDialog', 
+    $editForm->toHtml(), 
+    get_string('titleaccountedit', 'block_moodletxt'), 
+    '', 
+    array('style' => 'display:none;')
+);
+
 // Dialog box used for outbound access restrictions
 $restrictionsForm = new TxttoolsAccountRestrictionsForm();
 $dialog = new moodletxt_ui_dialog(
-    'accountRestrictionsDialog', 
+    'mdltxtAccountRestrictionsDialog', 
     $restrictionsForm->toHtml(), 
     get_string('titleaccountrestrictions', 'block_moodletxt'), 
     '', array('style' => 'display:none;')
 );
+
+echo($output->render($editDialog));
 echo($output->render($dialog));
 
 echo($output->footer());

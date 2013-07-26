@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042501
+ * @version 2013070201
  * @since 2012042501
  */
 
@@ -33,7 +33,7 @@ $json       = stripslashes(required_param('json', PARAM_RAW));
 
 // User requires same permissions as calling page
 require_login($courseId, false);
-$blockcontext = get_context_instance(CONTEXT_BLOCK, $instanceId);
+$blockcontext = context_block::instance($instanceId);
 require_capability('block/moodletxt:receivemessages', $blockcontext, $USER->id);
 
 // Prevent page code being echoed by simply not including any of it!

@@ -12,7 +12,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -25,7 +25,7 @@
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
  * @todo Possibly split widget classes off into their own subdir
  * @todo (Long term) When PHP 5.4 is generally used, traits could be useful in widgets
- * @version 2012052801
+ * @version 2012100501
  * @since 2011060901
  */
 
@@ -155,7 +155,7 @@ class block_moodletxt_renderer extends plugin_renderer_base {
         
         $inputBox = html_writer::empty_tag('input', array('type' => 'text', 'width' => '20', 'name' => 'cloudNewTag'));
         $newTagContent = get_string('labelnewtag', 'block_moodletxt') . $inputBox .$this->render_moodletxt_icon(
-                new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddtag', 'block_moodletxt'), array('class' => 'addTagButton')));
+                new moodletxt_icon(moodletxt_icon::$ICON_ADD, get_string('altaddtag', 'block_moodletxt'), array('class' => 'mdltxtAddTagButton')));
         $newTagDiv = html_writer::tag('div', $newTagContent, array('id' => 'cloudNewTagForm'));
         
         return html_writer::tag('div', $header . $para . $newTagDiv, $htmlAttributes);
@@ -171,7 +171,7 @@ class block_moodletxt_renderer extends plugin_renderer_base {
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052401
+ * @version 2012100501
  * @since 2011060901
  */
 class moodletxt_icon implements renderable {
@@ -223,6 +223,12 @@ class moodletxt_icon implements renderable {
      * @var string
      */
     public static $ICON_DELETE = 'pix/icons/delete.png';
+    
+    /**
+     * Path to the generic "edit" icon used for a general-purpose edit button
+     * @var string
+     */
+    public static $ICON_EDIT = 'pix/icons/edit.png';
     
     /**
      * Path to the icon shown in menus/navigation to represent the compose page

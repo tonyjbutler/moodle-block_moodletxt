@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -21,7 +21,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011041401
+ * @version 2013011001
  * @since 2010090101
  */
 
@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011040701
+ * @version 2013011001
  * @since 2010090101
  */
 class MoodletxtXMLConstants {
@@ -75,8 +75,8 @@ class MoodletxtXMLConstants {
     public static $_REQUEST_MESSAGE_PHONE           = ']]></Phone>';
     public static $REQUEST_MESSAGE_TYPE             = '<Type>';
     public static $_REQUEST_MESSAGE_TYPE            = '</Type>';
-    public static $REQUEST_MESSAGE_SCHEDULE_DATE    = '<MessageDate>';
-    public static $_REQUEST_MESSAGE_SCHEDULE_DATE   = '</MessageDate>';
+    public static $REQUEST_MESSAGE_SCHEDULE_DATE    = '<ScheduleTimeUTCSecs>';
+    public static $_REQUEST_MESSAGE_SCHEDULE_DATE   = '</ScheduleTimeUTCSecs>';
     public static $REQUEST_MESSAGE_SUPPRESS_UNICODE = '<SuppressUnicode><![CDATA[true]]></SuppressUnicode>';
     public static $REQUEST_MESSAGE_UNIQUE_ID        = '<UniqueID><![CDATA[';
     public static $_REQUEST_MESSAGE_UNIQUE_ID       = ']]></UniqueID>';
@@ -119,6 +119,7 @@ class MoodletxtXMLConstants {
     public static $RESPONSE_INBOUND_DELIVERY_DATE   = 'Date';
     public static $RESPONSE_INBOUND_TICKET          = 'Ticket';
     public static $RESPONSE_INBOUND_DESTINATION     = 'Destination';
+    public static $RESPONSE_INBOUND_DESTINATION_ACC = 'DestinationAccount';
 
     public static $RESPONSE_ACCOUNT_BLOCK           = 'AccountDetail';
     public static $RESPONSE_ACCOUNT_MESSAGES_USED   = 'MessagesUsed';

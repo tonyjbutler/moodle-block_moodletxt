@@ -8,18 +8,18 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
  * Anyone using, extending or modifying moodletxt indemnifies the original authors against any contractual
  * or legal liability arising from their use of this code.
  * 
- * @TODO Ditch QFAMS and build our own two-select element - this one's a pain
+ * @TODO Ditch QFAMS and build our own two-select element - this one's a pain for compose
  * @author Greg J Preece <support@txttools.co.uk>
  * @copyright Copyright &copy; 2012 txttools Ltd. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052901
+ * @version 2012100401
  * @since 2011102001
  */
 
@@ -34,10 +34,6 @@ var $additionalContactLastName;
 
 var userSignature;
 
-var currentTab = 0;
-var currentSlide = 1;
-
-var glowSlides = new Array();
 var fadeColour = '#FF0000';
 
 /**
@@ -76,8 +72,6 @@ function showRecipientClass(source, className) {
     $('.recipientTypeSelector').removeClass('selected');
     $(source).addClass('selected');
     
-//    $sourceRecipients.children('option').hide();
-//    $sourceRecipients.children('option.' + className).show();
     $sourceRecipients.detachOptions('option');
     $sourceRecipients.attachOptions('option.' + className);
     $sourceRecipients.data('currentShownClass', className);
@@ -87,16 +81,21 @@ function showRecipientClass(source, className) {
 /**
  * "Glows" the navigator tab for each slide that
  * contains an error message
- * @version 2011102801
+ * @version 201210401
  * @since 2011102001
  */
 function glowErrors() {
 
-    jQuery.each(glowSlides, function() {
-//        var originalBG = $('#nav' + this).css('background-color');
-//        $('#nav' + this).animate({backgroundColor:fadeColour}, 750, 'linear');
-//        $('#nav' + this).animate({backgroundColor:originalBG}, 750, 'linear', glowErrors);
-        $(this).effect('highlight', {color:fadeColour});
+    $('div.slide').each(function(index, slide) {
+        
+        if ($(this).find('span.error').length > 0) {
+            var $navTab = $('#navigator ul li').eq(index);
+            
+            setInterval(function() {
+                $navTab.effect('highlight', { color : fadeColour }, 2000);
+            }, 3000);
+        }
+
     });
 
 }
@@ -124,11 +123,7 @@ function updateScheduleString() {
  * @since 2012030501
  */
 function addStandardRecipient() {
-    
-    // Remove selected attribute from any elements that are hidden
-    // (Shift-selects over a range can select hidden elements.)
-//    $sourceRecipients.children().filter(':hidden').prop('selected', false);
-    
+        
     // Copy options to recipients lists
     $sourceRecipients.copyOptions($finalRecipients, 'selected', false, true);
     $sourceRecipients.copyOptions($confirmRecipients, 'selected', false, true);
@@ -207,7 +202,7 @@ function addAdditionalRecipient() {
  * Moves a recipient from the selected recipients box
  * back to the potential recipients box, or drops them
  * completely if they are an additional recipient.
- * @version 2012041201
+ * @version 2012100401
  * @since 2012030501
  */
 function removeRecipient() {
@@ -217,7 +212,7 @@ function removeRecipient() {
     $.each(selected, function(index) {
         
         // Anyone that's an additional contact gets dropped
-        if (this.split('#')[0] == 'add') {
+        if (this.split('#')[0] === 'add') {
             $finalRecipients.removeOption(this);
         }
                 
@@ -562,7 +557,7 @@ $(document).ready(function(){
      * Form submission handler - when form is submitted,
      * check input to see if it's a bit crap
      */
-    $('form#messageForm').submit(function() {
+    $('form#mform1').submit(function() {
 
         var errorArray = new Array();
 
@@ -596,6 +591,7 @@ $(document).ready(function(){
      * Trigger a whole buncha stuff when the page is first loaded,
      * to make sure everything is set up properly
      */
+    $finalRecipients.copyOptions($confirmRecipients, 'all', false, true); // Repopulate confirmation box
     $messageText.keyup();
     $('#navigator ul li:first').trigger('click');
     $('input[name=showUsers]').click();

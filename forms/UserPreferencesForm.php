@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,15 +20,15 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042501
+ * @version 2013052301
  * @since 2011072701
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
-require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/forms/MoodletxtAbstractForm.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStringHelper.php');
 
 /**
  * New account form - takes username/password details
@@ -37,21 +37,26 @@ require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012042501
+ * @version 2013052301
  * @since 2011072701
  */
-class UserPreferencesForm extends moodleform {
+class UserPreferencesForm extends MoodletxtAbstractForm {
 
     /**
      * Sets up form for display to user
      * @global object $CFG Moodle global config
-     * @version 2012042501
+     * @version 2013052101
      * @since 2011072701
      */
     public function definition() {
         global $CFG;
 
         $prefsForm =& $this->_form;
+
+        // Moodle 2.5 and above have auto-collapsing forms. Not appropriate here!
+        // (Using method_exists() so that 2.0-2.4 and 2.5+ can share the same code base)
+        if (method_exists($this->_form, 'setDisableShortforms'))
+            $this->_form->setDisableShortforms(true);
 
         // Hidden fields for processing
         
@@ -195,28 +200,15 @@ class UserPreferencesForm extends moodleform {
     }
     
     /**
-     * Exposes individual elements from inside the wrapped form.
-     * This is done so that element contents/values can be edited
-     * during form processing after submission.
-     * @param string $elementName Name of element to retrieve
-     * @return HTML_QuickForm_element Requested element
-     * @version 2011080401
-     * @since 2011080401
-     */
-    public function get_element($elementName) {
-        return $this->_form->getElement($elementName);
-    }
-
-    /**
      * Utility method to wipe submitted data after it is
      * processed. This allows the form to return to the same page
      * without the form being repopulated with old data
-     * @version 2011080401
+     * @version 2012092101
      * @since 2011080401
      */
     public function clearSubmittedValues() {
-        $this->_form->updateSubmission(array(), array());
         $this->get_element('templateText')->setValue('');
+        parent::clearSubmittedValues();
     }
 
 }

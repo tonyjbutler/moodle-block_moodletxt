@@ -21,11 +21,10 @@
         var s = this;
         return s.each(function(){
             var d = s.data('selectOptions') || [];
-            for (var i in d) {
-                if (d[i].is(o)) {
-                    s.append(d[i]);
-//                    console.log(d[i]);
-                    d.splice(i, 1);
+            for (var x = d.length - 1; x >= 0; x--) {
+                if (d[x].is(o)) {
+                    s.prepend(d[x]);
+                    d.splice(x, 1);
                     s.data('selectOptions', d);
                 }
             }

@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,15 +20,15 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011080801
+ * @version 2013070201
  * @since 2011042601
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
-require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/forms/MoodletxtAbstractForm.php');
 require_once($CFG->dirroot . '/blocks/moodletxt/dao/TxttoolsAccountDAO.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtStringHelper.php');
 
 /**
  * New account form - takes username/password details
@@ -37,15 +37,15 @@ require_once($CFG->dirroot . '/blocks/moodletxt/util/StringHelper.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011080101
+ * @version 2013070201
  * @since 2011042601
  */
-class NewTxttoolsAccountForm extends moodleform {
+class NewTxttoolsAccountForm extends MoodletxtAbstractForm {
 
     /**
      * Sets up form for display to user
      * @global object $CFG Moodle global config
-     * @version 2011042601
+     * @version 2013070201
      * @since 2011042601
      */
     public function definition() {
@@ -55,7 +55,7 @@ class NewTxttoolsAccountForm extends moodleform {
 
         // We need a list of users that can be default inboxes,
         // for the user to choose from for this initial account
-        $defaultInboxUsers = get_users_by_capability(get_context_instance(CONTEXT_SYSTEM), 'block/moodletxt:defaultinbox');
+        $defaultInboxUsers = get_users_by_capability(context_system::instance(), 'block/moodletxt:defaultinbox');
         $admins = get_admins();
         foreach ($admins as $admin) {
             $defaultInboxUsers[$admin->id] = $admin;
@@ -64,7 +64,7 @@ class NewTxttoolsAccountForm extends moodleform {
         $defaultInboxList = array();
 
         foreach($defaultInboxUsers as $defaultInboxUser)
-            $defaultInboxList[$defaultInboxUser->id] = StringHelper::formatNameForDisplay(
+            $defaultInboxList[$defaultInboxUser->id] = MoodletxtStringHelper::formatNameForDisplay(
                 $defaultInboxUser->firstname,
                 $defaultInboxUser->lastname,
                 $defaultInboxUser->username

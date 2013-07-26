@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +20,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052301
+ * @version 2013070201
  * @since 2011062901
  */
 
@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/dao/MoodletxtInboundFilterDAO.ph
 require_once($CFG->dirroot . '/blocks/moodletxt/forms/MoodletxtFiltersForm.php');
 
 require_login();
-require_capability('block/moodletxt:adminsettings', get_context_instance(CONTEXT_SYSTEM));
+require_capability('block/moodletxt:adminsettings', context_system::instance());
 
 // Set up DAOs
 $accountDAO = new TxttoolsAccountDAO();
@@ -45,6 +45,7 @@ admin_externalpage_setup('manageblocks'); // Shortcut function sets up page for 
 $PAGE->set_url('/blocks/moodletxt/settings_filters.php');
 $PAGE->set_heading(get_string('adminheaderaccountslist', 'block_moodletxt'));
 $PAGE->set_title(get_string('admintitleaccountlist', 'block_moodletxt'));
+$PAGE->set_docs_path('admin/setting/moodletxtfilters'); // External admin pages get their MoodleDocs links messed up
 $PAGE->set_button(''); // Clear editing button
 
 $PAGE->navbar->add(get_string('navmoodletxt', 'block_moodletxt'), $CFG->wwwroot . '/admin/settings.php?section=blocksettingmoodletxt', navigation_node::TYPE_CUSTOM, 'moodletxt');
@@ -70,7 +71,7 @@ $PAGE->requires->js('/blocks/moodletxt/js/lib/jquery.selectboxes.js', true);
 $PAGE->requires->js('/blocks/moodletxt/js/lib.js', true);
 $PAGE->requires->js('/blocks/moodletxt/js/settings_filters.js', true);
 
-$accountList = $accountDAO->getAllTxttoolsAccounts();
+$accountList = $accountDAO->getAllTxttoolsAccounts(false, true, false, true);
 
 // Create form and initialise data
 $customData = array('filterAccountList' => array(0 => ''));
@@ -83,7 +84,7 @@ $formData = $filterForm->get_data();
 
 // Form processing
 if ($formData != null) {
- 
+
     $formData = $filterForm->cleanupFormData($formData);
     $usersOnFilter = array();
  

@@ -1,6 +1,3 @@
-//<!--
-//<![CDATA[
-
 /**
  * jQuery scripting for the received messages page
  * 
@@ -10,7 +7,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,7 +17,7 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2012052901
+ * @version 2013061901
  * @since 2011080501
  */
 
@@ -57,11 +54,11 @@ function updateTagView() {
     
     if (activeTags.length == 0) {
         
-        $('table#receivedMessagesList tr').filter(':gt(0)').show()
+        $('table#mdltxtReceivedMessagesList tr').filter(':gt(0)').show()
         
     } else {
     
-        $('table#receivedMessagesList tr').filter(':gt(0)').hide();
+        $('table#mdltxtReceivedMessagesList tr').filter(':gt(0)').hide();
 
         activeTags.each(function() {
             var link = $(this).children('a').filter(':first').attr('href');
@@ -361,7 +358,7 @@ $(document).ready(function() {
     /*
      * Drop handler for table rows
      */
-    $('#receivedMessagesList tr').slice(0).droppable({
+    $('#mdltxtReceivedMessagesList tr').slice(0).droppable({
         hoverClass  :   'droppableHighlight',
         drop        :   function(event, ui) {
             
@@ -474,10 +471,14 @@ $(document).ready(function() {
     /*
      * AJAX form handler for creating new tags
      */
-    $('.addTagButton').click(function(event) {
-        $(this).parent().append($IMAGE_LOADING.clone());
-        
+    $('.mdltxtAddTagButton').click(function(event) {
         var $inputBox = $(this).siblings('input[type=text]');
+        
+        if ($inputBox.val() == '') {
+            return;
+        }
+        
+        $(this).parent().append($IMAGE_LOADING.clone());
         
         // @todo Add tag colours in final release
         var requestJSON = {
@@ -499,12 +500,12 @@ $(document).ready(function() {
                 
                 if (data.hasError == false) {
                     $tagLink = $('<a>').attr('href', '#' + requestJSON.tagName.replace(' ', '')).text(requestJSON.tagName);
-                    $newTag = $('<span>').addClass('mtxtTag').append($tagLink);
+                    $newTag = $('<span>').addClass('mtxtTag').css('font-size', '50%').append($tagLink);
                     makeDraggable($newTag);
                     $newTag2 = $newTag.clone(); // Do not clone events relating to draggable. Position is affected
                     makeDraggable($newTag2);
                     
-                    $('div#tagListScroller').append($newTag);
+                    $('div#mdltxtTagListScroller').append($newTag);
                     $('.mtxtTagCloud .tags').append($newTag2);
                 }
             }
@@ -522,7 +523,7 @@ $(document).ready(function() {
     $('img.mtxtMessageDeleteButton').click(function(event) {
         $('input[name=messageids\\[\\]]').removeAttr('checked');
         $(this).parent().parent().find('input').filter(':first').attr('checked', 'checked');
-        $('select[name=action]').val('killmaimburn').change();
+        $('select[name=action]').filter(':first').val('killmaimburn').change();
     });
    
     $('img.mtxtMessageTagButton').click(function(event) {
@@ -565,6 +566,3 @@ $(document).ready(function() {
     });
     
 });
-
-//]]>
-//-->

@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,13 +20,13 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011080801
+ * @version 2012092101
  * @since 2011061501
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
-require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/forms/MoodletxtAbstractForm.php');
 
 /**
  * Account restrictions form - allows txttools accounts
@@ -36,10 +36,10 @@ require_once($CFG->libdir . '/formslib.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011062401
+ * @version 2012092101
  * @since 2011061501
  */
-class TxttoolsAccountRestrictionsForm extends moodleform {
+class TxttoolsAccountRestrictionsForm extends MoodletxtAbstractForm {
 
     /**
      * Sets up form for display to user
@@ -88,18 +88,7 @@ class TxttoolsAccountRestrictionsForm extends moodleform {
         return array();
         
     }
-    
-    /**
-     * Method used to render the form as a string,
-     * rather than immediately dumping to screen.
-     * @return string Rendered HTML
-     * @version 2011062401
-     * @since 2011061501
-     */
-    public function toHtml() {
-        return $this->_form->toHtml();
-    }
-    
+        
 }
 
 ?>

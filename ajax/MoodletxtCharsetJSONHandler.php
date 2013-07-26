@@ -9,7 +9,7 @@
  * In addition to this licence, as described in section 7, we add the following terms:
  *   - Derivative works must preserve original authorship attribution (@author tags and other such notices)
  *   - Derivative works do not have permission to use the trade and service names 
- *     "txttools", "moodletxt", "Blackboard", "Blackboard Connect" or "Cy-nap"
+ *     "ConnectTxt", "txttools", "moodletxt", "moodletxt+", "Blackboard", "Blackboard Connect" or "Cy-nap"
  *   - Derivative works must be have their differences from the original material noted,
  *     and must not be misrepresentative of the origin of this material, or of the original service
  * 
@@ -20,14 +20,14 @@
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011102401
+ * @version 2013061701
  * @since 2011102401
  */
 
 defined('MOODLE_INTERNAL') || die('File cannot be accessed directly.');
 
 require_once($CFG->dirroot . '/blocks/moodletxt/ajax/MoodletxtAJAXException.php');
-require_once($CFG->dirroot . '/blocks/moodletxt/util/CharsetHelper.php');
+require_once($CFG->dirroot . '/blocks/moodletxt/util/MoodletxtCharsetHelper.php');
 
 /**
  * JSON handler for checking whether given text can fit within a
@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/blocks/moodletxt/util/CharsetHelper.php');
  * @author Greg J Preece <txttoolssupport@blackboard.com>
  * @copyright Copyright &copy; 2012 Blackboard Connect. All rights reserved.
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public Licence v3 (See code header for additional terms)
- * @version 2011102401
+ * @version 2013061701
  * @since 2011102401
  */
 class MoodletxtCharsetJSONHandler {
@@ -62,7 +62,7 @@ class MoodletxtCharsetJSONHandler {
      * @param string $json JSON to parse
      * @return string JSON response
      * @throws MoodletxtAJAXException
-     * @version 2011102401
+     * @version 2013061701
      * @since 2011102401
      */
     public function processJSON($json) {
@@ -82,7 +82,8 @@ class MoodletxtCharsetJSONHandler {
         switch(strtolower($decoded->charset)) {
 
             case 'gsm':
-                $response = $this->checkGSM($decoded->text);
+                $response = $this->checkGSM(
+                    clean_param($decoded->text, PARAM_TEXT));
                 break;            
                         
             default:
@@ -100,13 +101,13 @@ class MoodletxtCharsetJSONHandler {
      * Checks whether the given text matches the GSM 03.38 charset
      * @param string $textToCheck Text to check
      * @return string Encoded JSON response
-     * @version 2011102401
+     * @version 2013052301
      * @since 2011102401
      */
     private function checkGSM($textToCheck) {
         $response = $this->responseTemplate; // Copy template
         $response['charset'] = 'GSM';
-        $response['matches'] = CharsetHelper::is_GSM($textToCheck);
+        $response['matches'] = MoodletxtCharsetHelper::is_GSM($textToCheck);
         
         return json_encode($response);
     }
